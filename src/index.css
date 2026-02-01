@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+/* AUSA Brand Colors */
+:root {
+  --ausa-red: #E63946;
+  --ausa-navy: #1D3557;
+  --ausa-success: #2A9D8F;
+  --ausa-warning: #E9C46A;
+  --bg-primary: #F8F9FA;
+  --bg-secondary: #FFFFFF;
+  --text-primary: #212529;
+  --text-secondary: #6C757D;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Status Colors */
+.status-lead { color: #6B7280; background-color: #F3F4F6; }
+.status-eval { color: #D97706; background-color: #FEF3C7; }
+.status-assessment { color: #EA580C; background-color: #FFEDD5; }
+.status-signed { color: #2563EB; background-color: #DBEAFE; }
+.status-process { color: #7C3AED; background-color: #EDE9FE; }
+.status-placed { color: #059669; background-color: #D1FAE5; }
