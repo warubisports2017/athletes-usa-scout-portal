@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../lib/auth'
 import { Home, Users, Link, MoreHorizontal, LogOut, Settings, ChevronDown, BadgeCheck, X } from 'lucide-react'
+import FeedbackButton from './FeedbackButton'
 
 const navItems = [
   { id: 'home', label: 'Home', icon: Home },
@@ -31,7 +32,7 @@ export default function Layout({ children, activeTab = 'home', onTabChange }) {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-40">
-        <div className="flex items-center justify-between max-w-lg mx-auto">
+        <div className="flex items-center justify-between max-w-lg md:max-w-4xl lg:max-w-6xl mx-auto">
           {/* Scout info */}
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 bg-[#E63946] rounded-full flex items-center justify-center">
@@ -46,6 +47,28 @@ export default function Layout({ children, activeTab = 'home', onTabChange }) {
               )}
             </div>
           </div>
+
+          {/* Desktop navigation */}
+          <nav className="hidden md:flex items-center gap-1">
+            {navItems.map((item) => {
+              const Icon = item.icon
+              const isActive = activeTab === item.id
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => onTabChange?.(item.id)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                    isActive
+                      ? 'bg-red-50 text-[#E63946]'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  <Icon size={18} />
+                  <span className="text-sm font-medium">{item.label}</span>
+                </button>
+              )
+            })}
+          </nav>
 
           {/* Settings menu */}
           <div className="relative">
@@ -88,14 +111,17 @@ export default function Layout({ children, activeTab = 'home', onTabChange }) {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto pb-20">
-        <div className="max-w-lg mx-auto">
+      <main className="flex-1 overflow-auto pb-20 md:pb-6">
+        <div className="max-w-lg md:max-w-4xl lg:max-w-6xl mx-auto">
           {children}
         </div>
       </main>
 
-      {/* Bottom navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
+      {/* Feedback widget */}
+      <FeedbackButton />
+
+      {/* Bottom navigation - mobile only, desktop gets top nav in header */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 md:hidden">
         <div className="max-w-lg mx-auto px-2">
           <div className="flex items-center justify-around">
             {navItems.map((item) => {
