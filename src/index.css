@@ -197,10 +197,16 @@ body {
 }
 .sp-feedback-screenshot-btn:hover { color: #374151; border-color: #9ca3af; }
 
+.sp-feedback-screenshot-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
 .sp-feedback-screenshot-preview {
   position: relative;
   display: inline-block;
-  margin-top: 4px;
 }
 .sp-feedback-screenshot-preview img {
   max-width: 120px;

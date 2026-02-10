@@ -18,8 +18,7 @@ export default function FeedbackModal({ onClose, onViewMyFeedback }) {
 
   const [step, setStep] = useState('input') // 'input' | 'confirm' | 'submitting' | 'success'
   const [message, setMessage] = useState('')
-  const [screenshot, setScreenshot] = useState(null)
-  const [screenshotPreview, setScreenshotPreview] = useState(null)
+  const [screenshots, setScreenshots] = useState([])       // Array of { file, preview }
 
   // AI analysis
   const [aiSummary, setAiSummary] = useState('')
@@ -30,17 +29,22 @@ export default function FeedbackModal({ onClose, onViewMyFeedback }) {
   const [error, setError] = useState(null)
 
   const handleFileChange = (e) => {
-    const file = e.target.files?.[0]
-    if (file && file.type.startsWith('image/')) {
-      setScreenshot(file)
-      setScreenshotPreview(URL.createObjectURL(file))
-    }
+    const files = Array.from(e.target.files || [])
+    const imageFiles = files.filter(f => f.type.startsWith('image/'))
+    if (imageFiles.length === 0) return
+    const newItems = imageFiles.map(file => ({
+      file,
+      preview: URL.createObjectURL(file)
+    }))
+    setScreenshots(prev => [...prev, ...newItems])
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
-  const removeScreenshot = () => {
-    setScreenshot(null)
-    setScreenshotPreview(null)
-    if (fileInputRef.current) fileInputRef.current.value = ''
+  const removeScreenshot = (index) => {
+    setScreenshots(prev => {
+      URL.revokeObjectURL(prev[index]?.preview)
+      return prev.filter((_, i) => i !== index)
+    })
   }
 
   // Step 1 → Step 2: Analyze with Gemini
@@ -104,32 +108,35 @@ Return ONLY valid JSON: { "summary": "...", "type": "Bug|Feature|Question|Other|
     }
   }
 
-  // Upload screenshot to Supabase Storage
-  const uploadScreenshot = async () => {
-    if (!screenshot) return null
-    try {
-      const fileExt = screenshot.name.split('.').pop()
-      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`
-      const filePath = `feedback/${fileName}`
+  // Upload all screenshots to Supabase Storage
+  const uploadScreenshots = async () => {
+    if (screenshots.length === 0) return []
+    const urls = []
+    for (const item of screenshots) {
+      try {
+        const fileExt = item.file.name.split('.').pop()
+        const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`
+        const filePath = `feedback/${fileName}`
 
-      const { error: uploadError } = await supabase.storage
-        .from('feedback-screenshots')
-        .upload(filePath, screenshot)
+        const { error: uploadError } = await supabase.storage
+          .from('feedback-screenshots')
+          .upload(filePath, item.file)
 
-      if (uploadError) {
-        console.warn('Screenshot upload failed:', uploadError)
-        return null
+        if (uploadError) {
+          console.warn('Screenshot upload failed:', uploadError)
+          continue
+        }
+
+        const { data: urlData } = supabase.storage
+          .from('feedback-screenshots')
+          .getPublicUrl(filePath)
+
+        if (urlData?.publicUrl) urls.push(urlData.publicUrl)
+      } catch (err) {
+        console.warn('Screenshot upload error:', err)
       }
-
-      const { data: urlData } = supabase.storage
-        .from('feedback-screenshots')
-        .getPublicUrl(filePath)
-
-      return urlData?.publicUrl || null
-    } catch (err) {
-      console.warn('Screenshot upload error:', err)
-      return null
     }
+    return urls
   }
 
   // Step 2 → Submit
@@ -138,7 +145,7 @@ Return ONLY valid JSON: { "summary": "...", "type": "Bug|Feature|Question|Other|
     setError(null)
 
     try {
-      const screenshotUrl = await uploadScreenshot()
+      const uploadedUrls = await uploadScreenshots()
 
       const { error: insertError } = await supabase
         .from('feedback')
@@ -149,7 +156,8 @@ Return ONLY valid JSON: { "summary": "...", "type": "Bug|Feature|Question|Other|
           message,
           ai_summary: aiSummary,
           type: aiType === 'Unclear' ? 'Other' : aiType,
-          screenshot_url: screenshotUrl,
+          screenshot_url: uploadedUrls[0] || null,
+          screenshot_urls: uploadedUrls.length > 0 ? uploadedUrls : null,
           status: 'open'
         })
 
@@ -170,8 +178,8 @@ Return ONLY valid JSON: { "summary": "...", "type": "Bug|Feature|Question|Other|
   const handleSubmitAnother = () => {
     setStep('input')
     setMessage('')
-    setScreenshot(null)
-    setScreenshotPreview(null)
+    screenshots.forEach(s => URL.revokeObjectURL(s.preview))
+    setScreenshots([])
     setAiSummary('')
     setAiType('Other')
     setAiClarifyingQuestion('')
@@ -213,31 +221,35 @@ Return ONLY valid JSON: { "summary": "...", "type": "Bug|Feature|Question|Other|
                 autoFocus
               />
 
-              {/* Screenshot */}
+              {/* Screenshots */}
               <div className="sp-feedback-screenshot-section">
                 <input
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
+                  multiple
                   onChange={handleFileChange}
                   style={{ display: 'none' }}
                 />
-                {!screenshotPreview ? (
-                  <button
-                    className="sp-feedback-screenshot-btn"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Upload size={14} />
-                    Add Screenshot
-                  </button>
-                ) : (
-                  <div className="sp-feedback-screenshot-preview">
-                    <img src={screenshotPreview} alt="Screenshot" />
-                    <button className="sp-feedback-screenshot-remove" onClick={removeScreenshot}>
-                      <X size={12} />
-                    </button>
+                {screenshots.length > 0 && (
+                  <div className="sp-feedback-screenshot-grid">
+                    {screenshots.map((item, i) => (
+                      <div key={i} className="sp-feedback-screenshot-preview">
+                        <img src={item.preview} alt={`Screenshot ${i + 1}`} />
+                        <button className="sp-feedback-screenshot-remove" onClick={() => removeScreenshot(i)}>
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
+                <button
+                  className="sp-feedback-screenshot-btn"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload size={14} />
+                  {screenshots.length === 0 ? 'Add Screenshots' : 'Add More'}
+                </button>
               </div>
             </>
           )}
