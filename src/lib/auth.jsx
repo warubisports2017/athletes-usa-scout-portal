@@ -10,21 +10,28 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        loadScoutProfile(session.user.id)
-      } else {
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        setUser(session?.user ?? null)
+        if (session?.user) {
+          loadScoutProfile(session.user.email)
+        } else {
+          setLoading(false)
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to get session:', err)
+        setUser(null)
+        setScout(null)
         setLoading(false)
-      }
-    })
+      })
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setUser(session?.user ?? null)
         if (session?.user) {
-          await loadScoutProfile(session.user.id)
+          await loadScoutProfile(session.user.email)
         } else {
           setScout(null)
           setLoading(false)
