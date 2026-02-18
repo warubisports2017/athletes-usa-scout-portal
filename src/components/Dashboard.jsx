@@ -40,17 +40,17 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (user?.id) {
+    if (scout?.id) {
       loadData()
     }
-  }, [user?.id])
+  }, [scout?.id])
 
   async function loadData() {
     try {
       setLoading(true)
       const [leadsData, commissionsData, statsData] = await Promise.all([
-        getScoutLeads(user.id),
-        getScoutCommissions(user.id),
+        getScoutLeads(scout.id),
+        getScoutCommissions(scout.id),
         getCompanyStats(),
       ])
       setLeads(leadsData || [])
@@ -83,31 +83,35 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
-        {/* Profile Header */}
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-[var(--ausa-navy)] flex items-center justify-center text-white font-semibold text-lg">
-              {scout?.name?.charAt(0)?.toUpperCase() || 'S'}
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold text-gray-900">{scout?.name || 'Scout'}</h1>
-                {scout?.verified_since && (
-                  <CheckCircle className="w-5 h-5 text-[var(--ausa-success)]" />
-                )}
+      <div className="px-4 py-6">
+        {/* Desktop: Two column layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left column - Main content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Profile Header */}
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-[var(--ausa-navy)] flex items-center justify-center text-white font-semibold text-lg">
+                  {scout?.first_name?.charAt(0)?.toUpperCase() || 'S'}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-xl font-bold text-gray-900">{scout?.full_name || 'Scout'}</h1>
+                    {scout?.is_active && (
+                      <CheckCircle className="w-5 h-5 text-[var(--ausa-success)]" />
+                    )}
+                  </div>
+                  {scout?.is_active && (
+                    <p className="text-sm text-gray-500">
+                      Active Scout
+                    </p>
+                  )}
+                </div>
               </div>
-              {scout?.verified_since && (
-                <p className="text-sm text-gray-500">
-                  Verified Scout since {formatDate(scout.verified_since)}
-                </p>
-              )}
             </div>
-          </div>
-        </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-3 gap-3">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-3 gap-3">
           <div className="bg-white rounded-xl p-4 shadow-sm text-center">
             <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-2">
               <Users className="w-5 h-5 text-blue-600" />
@@ -133,93 +137,150 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Company-Wide Stats */}
-        <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-100">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-xl">🏆</span>
-            <h2 className="font-semibold text-gray-900">AUSA This Month</h2>
-          </div>
-          <div className="flex gap-6">
-            <div>
-              <p className="text-2xl font-bold text-amber-700">{companyStats.placedThisMonth}</p>
-              <p className="text-xs text-gray-600">Athletes Placed</p>
+            {/* Company-Wide Stats - Mobile only */}
+            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-100 lg:hidden">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xl">🏆</span>
+                <h2 className="font-semibold text-gray-900">AUSA This Month</h2>
+              </div>
+              <div className="flex gap-6">
+                <div>
+                  <p className="text-2xl font-bold text-amber-700">{companyStats.placedThisMonth}</p>
+                  <p className="text-xs text-gray-600">Athletes Placed</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-amber-700">{companyStats.signupsThisMonth}</p>
+                  <p className="text-xs text-gray-600">New Signups</p>
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="text-2xl font-bold text-amber-700">{companyStats.signupsThisMonth}</p>
-              <p className="text-xs text-gray-600">New Signups</p>
-            </div>
-          </div>
-        </div>
 
-        {/* My Leads Preview */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="font-semibold text-gray-900">My Leads</h2>
-            {leads.length > 5 && (
-              <a href="/leads" className="text-sm text-[var(--ausa-red)] font-medium hover:underline">
-                See All
-              </a>
-            )}
+            {/* My Leads Preview */}
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                <h2 className="font-semibold text-gray-900">My Leads</h2>
+                {leads.length > 5 && (
+                  <a href="/leads" className="text-sm text-[var(--ausa-red)] font-medium hover:underline">
+                    See All
+                  </a>
+                )}
+              </div>
+
+              {previewLeads.length === 0 ? (
+                <div className="p-6 text-center text-gray-500">
+                  <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p>No leads yet. Share your link to get started!</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-100">
+                  {previewLeads.map((lead) => {
+                    const style = getStatusStyle(lead.process_status)
+                    return (
+                      <div key={lead.id} className="px-4 py-3 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-2 h-2 rounded-full ${style.dot}`}></div>
+                          <span className="font-medium text-gray-900">
+                            {lead.first_name} {lead.last_name}
+                          </span>
+                        </div>
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${style.bg} ${style.text}`}>
+                          {lead.process_status || 'Lead Created'}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Quick Action Buttons - Mobile only */}
+            <div className="grid grid-cols-3 gap-3 lg:hidden">
+              <button
+                onClick={() => {/* TODO: Share functionality */}}
+                className="flex flex-col items-center gap-2 bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="w-12 h-12 rounded-full bg-[var(--ausa-red)] bg-opacity-10 flex items-center justify-center">
+                  <Share2 className="w-5 h-5 text-[var(--ausa-red)]" />
+                </div>
+                <span className="text-sm font-medium text-gray-700">Share Link</span>
+              </button>
+
+              <button
+                onClick={() => {/* TODO: QR Code functionality */}}
+                className="flex flex-col items-center gap-2 bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="w-12 h-12 rounded-full bg-[var(--ausa-navy)] bg-opacity-10 flex items-center justify-center">
+                  <QrCode className="w-5 h-5 text-[var(--ausa-navy)]" />
+                </div>
+                <span className="text-sm font-medium text-gray-700">QR Code</span>
+              </button>
+
+              <button
+                onClick={() => {/* TODO: Resources functionality */}}
+                className="flex flex-col items-center gap-2 bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="w-12 h-12 rounded-full bg-[var(--ausa-success)] bg-opacity-10 flex items-center justify-center">
+                  <BookOpen className="w-5 h-5 text-[var(--ausa-success)]" />
+                </div>
+                <span className="text-sm font-medium text-gray-700">Resources</span>
+              </button>
+            </div>
           </div>
 
-          {previewLeads.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">
-              <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p>No leads yet. Share your link to get started!</p>
+          {/* Right column - Sidebar (desktop only) */}
+          <div className="hidden lg:block space-y-6">
+            {/* Company-Wide Stats */}
+            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-100">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xl">🏆</span>
+                <h2 className="font-semibold text-gray-900">AUSA This Month</h2>
+              </div>
+              <div className="flex gap-6">
+                <div>
+                  <p className="text-2xl font-bold text-amber-700">{companyStats.placedThisMonth}</p>
+                  <p className="text-xs text-gray-600">Athletes Placed</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-amber-700">{companyStats.signupsThisMonth}</p>
+                  <p className="text-xs text-gray-600">New Signups</p>
+                </div>
+              </div>
             </div>
-          ) : (
-            <div className="divide-y divide-gray-100">
-              {previewLeads.map((lead) => {
-                const style = getStatusStyle(lead.process_status)
-                return (
-                  <div key={lead.id} className="px-4 py-3 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-2 h-2 rounded-full ${style.dot}`}></div>
-                      <span className="font-medium text-gray-900">
-                        {lead.first_name} {lead.last_name}
-                      </span>
-                    </div>
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${style.bg} ${style.text}`}>
-                      {lead.process_status || 'Lead Created'}
-                    </span>
+
+            {/* Quick Actions - Desktop */}
+            <div className="bg-white rounded-xl p-4 shadow-sm">
+              <h3 className="font-semibold text-gray-900 mb-4">Quick Actions</h3>
+              <div className="space-y-3">
+                <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left">
+                  <div className="w-10 h-10 rounded-full bg-[var(--ausa-red)] bg-opacity-10 flex items-center justify-center">
+                    <Share2 className="w-5 h-5 text-[var(--ausa-red)]" />
                   </div>
-                )
-              })}
+                  <div>
+                    <p className="font-medium text-gray-900">Share Referral Link</p>
+                    <p className="text-xs text-gray-500">Copy or share via WhatsApp</p>
+                  </div>
+                </button>
+                <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left">
+                  <div className="w-10 h-10 rounded-full bg-[var(--ausa-navy)] bg-opacity-10 flex items-center justify-center">
+                    <QrCode className="w-5 h-5 text-[var(--ausa-navy)]" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">Generate QR Code</p>
+                    <p className="text-xs text-gray-500">Perfect for events</p>
+                  </div>
+                </button>
+                <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left">
+                  <div className="w-10 h-10 rounded-full bg-[var(--ausa-success)] bg-opacity-10 flex items-center justify-center">
+                    <BookOpen className="w-5 h-5 text-[var(--ausa-success)]" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">Marketing Resources</p>
+                    <p className="text-xs text-gray-500">PDFs, images, training</p>
+                  </div>
+                </button>
+              </div>
             </div>
-          )}
-        </div>
-
-        {/* Quick Action Buttons */}
-        <div className="grid grid-cols-3 gap-3">
-          <button
-            onClick={() => {/* TODO: Share functionality */}}
-            className="flex flex-col items-center gap-2 bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
-          >
-            <div className="w-12 h-12 rounded-full bg-[var(--ausa-red)] bg-opacity-10 flex items-center justify-center">
-              <Share2 className="w-5 h-5 text-[var(--ausa-red)]" />
-            </div>
-            <span className="text-sm font-medium text-gray-700">Share Link</span>
-          </button>
-
-          <button
-            onClick={() => {/* TODO: QR Code functionality */}}
-            className="flex flex-col items-center gap-2 bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
-          >
-            <div className="w-12 h-12 rounded-full bg-[var(--ausa-navy)] bg-opacity-10 flex items-center justify-center">
-              <QrCode className="w-5 h-5 text-[var(--ausa-navy)]" />
-            </div>
-            <span className="text-sm font-medium text-gray-700">QR Code</span>
-          </button>
-
-          <button
-            onClick={() => {/* TODO: Resources functionality */}}
-            className="flex flex-col items-center gap-2 bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
-          >
-            <div className="w-12 h-12 rounded-full bg-[var(--ausa-success)] bg-opacity-10 flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-[var(--ausa-success)]" />
-            </div>
-            <span className="text-sm font-medium text-gray-700">Resources</span>
-          </button>
+          </div>
         </div>
       </div>
     </div>

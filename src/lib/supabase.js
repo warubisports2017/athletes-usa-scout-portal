@@ -12,11 +12,11 @@ export const supabase = createClient(
 )
 
 // Scout-related queries
-export async function getScoutProfile(scoutId) {
+export async function getScoutProfile(email) {
   const { data, error } = await supabase
     .from('scouts')
     .select('*')
-    .eq('id', scoutId)
+    .eq('email', email)
     .single()
   if (error) throw error
   return data
@@ -25,7 +25,7 @@ export async function getScoutProfile(scoutId) {
 export async function getScoutLeads(scoutId) {
   const { data, error } = await supabase
     .from('athletes')
-    .select('id, first_name, last_name, process_status, created_at, sport, profile_photo_url')
+    .select('id, first_name, last_name, process_status, created_at, sport')
     .eq('referred_by_scout_id', scoutId)
     .order('created_at', { ascending: false })
   if (error) throw error

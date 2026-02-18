@@ -12,8 +12,8 @@ Scout portal for AUSA affiliates to track leads, share referral links, and view 
 - Region: us-east-1
 
 ## Vercel
-- App: scout-portal
-- URL: https://scout-portal.vercel.app
+- App: scout-portal-steel
+- URL: https://scout-portal-steel.vercel.app
 
 ## Key Tables
 - `scouts` - Scout profiles with commission settings

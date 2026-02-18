@@ -10,7 +10,7 @@ import Resources from './components/Resources'
 import Settings from './components/Settings'
 
 function AppContent() {
-  const { user, loading } = useAuth()
+  const { user, scout, loading } = useAuth()
   const [activeTab, setActiveTab] = useState('home')
   const [moreView, setMoreView] = useState(null) // 'commission' | 'resources' | 'settings'
 
@@ -42,9 +42,9 @@ function AppContent() {
           >
             ← Back
           </button>
-          {moreView === 'commission' && <Commission />}
+          {moreView === 'commission' && <Commission scoutId={scout?.id} />}
           {moreView === 'resources' && <Resources />}
-          {moreView === 'settings' && <Settings />}
+          {moreView === 'settings' && <Settings scoutId={scout?.id} />}
         </div>
       </Layout>
     )
@@ -56,8 +56,8 @@ function AppContent() {
       setMoreView(null)
     }}>
       {activeTab === 'home' && <Dashboard />}
-      {activeTab === 'leads' && <LeadsList />}
-      {activeTab === 'share' && <ShareLinks />}
+      {activeTab === 'leads' && <LeadsList scoutId={scout?.id} />}
+      {activeTab === 'share' && <ShareLinks scoutId={scout?.id} />}
       {activeTab === 'more' && (
         <div className="p-4 space-y-3">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">More</h2>
