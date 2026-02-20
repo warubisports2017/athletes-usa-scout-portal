@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../lib/auth'
 import { updateScoutProfile, submitForReview, getScoutLeads } from '../lib/supabase'
 import PhotoUpload from './PhotoUpload'
-import { X, BadgeCheck, Shield, Send, ExternalLink, Save, Loader2, CheckCircle, Clock, AlertCircle } from 'lucide-react'
+import { X, BadgeCheck, Shield, Send, ExternalLink, Save, Loader2, CheckCircle, Clock, AlertCircle, FileUp, Sparkles } from 'lucide-react'
 
 const SECTIONS = [
   { id: 'about', label: 'About', fields: ['bio', 'education', 'role_model'] },
@@ -39,6 +39,10 @@ export default function ScoutProfile({ onClose }) {
   const [submitting, setSubmitting] = useState(false)
   const [stats, setStats] = useState({ leads: 0, pipeline: 0 })
   const [activeSection, setActiveSection] = useState('about')
+  const [cvImporting, setCvImporting] = useState(false)
+  const [cvExtracted, setCvExtracted] = useState(null)
+  const [cvError, setCvError] = useState('')
+  const cvInputRef = useRef(null)
 
   useEffect(() => {
     if (!scout) return
@@ -125,6 +129,78 @@ export default function ScoutProfile({ onClose }) {
     }
   }
 
+  async function handleCvImport(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    // Reset input so same file can be re-selected
+    e.target.value = ''
+
+    if (file.type !== 'application/pdf') {
+      setCvError('Please upload a PDF file.')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setCvError('File too large (max 5MB).')
+      return
+    }
+
+    setCvError('')
+    setCvExtracted(null)
+    setCvImporting(true)
+
+    try {
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result.split(',')[1])
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+
+      const res = await fetch('/api/extract-cv', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pdfBase64: base64 }),
+      })
+      const data = await res.json()
+
+      if (!res.ok) {
+        setCvError(data.error || 'Extraction failed.')
+        return
+      }
+
+      if (!data.extracted || Object.keys(data.extracted).length === 0) {
+        setCvError(data.message || 'No profile data found in CV.')
+        return
+      }
+
+      setCvExtracted(data.extracted)
+    } catch (err) {
+      console.error('CV import error:', err)
+      setCvError('Failed to process CV. Please try again.')
+    } finally {
+      setCvImporting(false)
+    }
+  }
+
+  function handleApplyCv() {
+    if (!cvExtracted) return
+    setForm(f => {
+      const updated = { ...f }
+      for (const [key, value] of Object.entries(cvExtracted)) {
+        if (!updated[key]?.trim()) {
+          updated[key] = value
+        }
+      }
+      return updated
+    })
+    setCvExtracted(null)
+  }
+
+  function handleDismissCv() {
+    setCvExtracted(null)
+    setCvError('')
+  }
+
   async function handlePhotoUpload(field, url) {
     try {
       await updateScoutProfile(scout.id, { [field]: url })
@@ -187,6 +263,73 @@ export default function ScoutProfile({ onClose }) {
             <p className="text-2xl font-bold text-gray-900">{stats.pipeline}</p>
             <p className="text-sm text-gray-500">In Pipeline</p>
           </div>
+        </div>
+
+        {/* CV Import */}
+        <div className="border-2 border-dashed border-gray-200 rounded-xl p-4">
+          <input
+            ref={cvInputRef}
+            type="file"
+            accept=".pdf"
+            onChange={handleCvImport}
+            className="hidden"
+          />
+
+          {cvExtracted ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
+                <Sparkles size={16} className="text-amber-500" />
+                Extracted from CV
+              </div>
+              <div className="space-y-2">
+                {Object.entries(cvExtracted).map(([key, value]) => {
+                  const label = FIELD_CONFIG[key]?.label || key
+                  const alreadyFilled = !!form[key]?.trim()
+                  return (
+                    <div key={key} className={`text-sm rounded-lg px-3 py-2 ${alreadyFilled ? 'bg-gray-50 text-gray-400' : 'bg-green-50 text-green-800'}`}>
+                      <span className="font-medium">{label}:</span>{' '}
+                      {value}
+                      {alreadyFilled && <span className="ml-1 text-xs">(already filled)</span>}
+                    </div>
+                  )
+                })}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleApplyCv}
+                  className="flex-1 bg-green-600 text-white py-2 rounded-xl text-sm font-medium hover:bg-green-700 transition-colors"
+                >
+                  Apply Empty Fields
+                </button>
+                <button
+                  onClick={handleDismissCv}
+                  className="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center space-y-2">
+              <div className="flex items-center justify-center gap-2 text-sm font-medium text-gray-700">
+                <FileUp size={16} />
+                Import from CV
+              </div>
+              <p className="text-xs text-gray-500">Upload a PDF resume to auto-fill empty fields</p>
+              {cvError && <p className="text-xs text-red-600">{cvError}</p>}
+              <button
+                onClick={() => cvInputRef.current?.click()}
+                disabled={cvImporting}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 disabled:opacity-50 transition-colors"
+              >
+                {cvImporting ? (
+                  <><Loader2 size={14} className="animate-spin" /> Reading...</>
+                ) : (
+                  'Upload CV'
+                )}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Section tabs */}

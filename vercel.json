@@ -1,3 +1,6 @@
 {
+  "functions": {
+    "api/extract-cv.js": { "maxDuration": 30 }
+  },
   "rewrites": [{ "source": "/(.*)", "destination": "/" }]
 }
