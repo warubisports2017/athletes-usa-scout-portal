@@ -42,6 +42,8 @@ export default function Dashboard() {
   useEffect(() => {
     if (scout?.id) {
       loadData()
+    } else {
+      setLoading(false)
     }
   }, [scout?.id])
 

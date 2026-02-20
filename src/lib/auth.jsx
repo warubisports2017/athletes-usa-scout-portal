@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { supabase, getScoutProfile } from './supabase'
 
 const AuthContext = createContext({})
@@ -7,8 +7,14 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [scout, setScout] = useState(null)
   const [loading, setLoading] = useState(true)
+  const profileFetchedRef = useRef(false)
 
   useEffect(() => {
+    // Safety timeout - if auth doesn't resolve in 5s, stop loading
+    const timeout = setTimeout(() => {
+      setLoading(false)
+    }, 5000)
+
     // Get initial session
     supabase.auth.getSession()
       .then(({ data: { session } }) => {
@@ -31,20 +37,28 @@ export function AuthProvider({ children }) {
       async (event, session) => {
         setUser(session?.user ?? null)
         if (session?.user) {
-          await loadScoutProfile(session.user.email)
+          // Skip if getSession() already loaded the profile
+          if (!profileFetchedRef.current) {
+            await loadScoutProfile(session.user.email)
+          }
         } else {
+          profileFetchedRef.current = false
           setScout(null)
           setLoading(false)
         }
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      clearTimeout(timeout)
+      subscription.unsubscribe()
+    }
   }, [])
 
-  async function loadScoutProfile(userId) {
+  async function loadScoutProfile(email) {
+    profileFetchedRef.current = true
     try {
-      const profile = await getScoutProfile(userId)
+      const profile = await getScoutProfile(email)
       setScout(profile)
     } catch (error) {
       console.error('Failed to load scout profile:', error)
