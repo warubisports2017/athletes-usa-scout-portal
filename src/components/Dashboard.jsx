@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../lib/auth'
 import { getScoutLeads, getScoutCommissions, getCompanyStats } from '../lib/supabase'
 import { Share2, QrCode, BookOpen, CheckCircle, Users, Trophy, DollarSign } from 'lucide-react'
+import EventBanner from './EventBanner'
 
 // Status color mapping
 const statusColors = {
@@ -32,7 +33,7 @@ function formatCurrency(amount) {
   }).format(amount || 0)
 }
 
-export default function Dashboard() {
+export default function Dashboard({ onNavigateToEvents }) {
   const { scout, user } = useAuth()
   const [leads, setLeads] = useState([])
   const [commissions, setCommissions] = useState([])
@@ -111,6 +112,9 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
+
+            {/* Event Banner */}
+            <EventBanner onNavigateToEvents={onNavigateToEvents} />
 
             {/* Stats Cards */}
             <div className="grid grid-cols-3 gap-3">

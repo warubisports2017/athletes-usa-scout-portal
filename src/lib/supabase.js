@@ -136,6 +136,38 @@ export async function uploadScoutPhoto(scoutId, file, type = 'profile') {
   return urlData.publicUrl
 }
 
+// Events
+export async function getUpcomingEvents() {
+  const today = new Date()
+  today.setHours(12, 0, 0, 0)
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .gte('event_date', todayStr)
+    .order('event_date', { ascending: true })
+  if (error) throw error
+  return data
+}
+
+export async function getNextFeaturedEvent() {
+  const today = new Date()
+  today.setHours(12, 0, 0, 0)
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .eq('is_featured', true)
+    .gte('event_date', todayStr)
+    .order('event_date', { ascending: true })
+    .limit(1)
+    .maybeSingle()
+  if (error) throw error
+  return data
+}
+
 // Company-wide stats for motivation
 export async function getCompanyStats() {
   const now = new Date()

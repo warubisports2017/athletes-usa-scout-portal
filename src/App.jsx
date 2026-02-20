@@ -6,6 +6,7 @@ import Layout from './components/Layout'
 import Dashboard from './components/Dashboard'
 import LeadsList from './components/LeadsList'
 import ShareLinks from './components/ShareLinks'
+import EventsList from './components/EventsList'
 import Commission from './components/Commission'
 import Resources from './components/Resources'
 import Settings from './components/Settings'
@@ -48,6 +49,7 @@ function AppContent() {
               ← Back
             </button>
             {moreView === 'commission' && <Commission scoutId={scout?.id} />}
+            {moreView === 'share' && <ShareLinks />}
             {moreView === 'resources' && <Resources />}
             {moreView === 'settings' && <Settings scoutId={scout?.id} />}
           </div>
@@ -63,9 +65,9 @@ function AppContent() {
         setActiveTab(tab)
         setMoreView(null)
       }} onAvatarClick={() => setShowProfile(true)}>
-        {activeTab === 'home' && <Dashboard />}
+        {activeTab === 'home' && <Dashboard onNavigateToEvents={() => setActiveTab('events')} />}
         {activeTab === 'leads' && <LeadsList scoutId={scout?.id} />}
-        {activeTab === 'share' && <ShareLinks scoutId={scout?.id} />}
+        {activeTab === 'events' && <EventsList />}
         {activeTab === 'more' && (
           <div className="p-4 space-y-3">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">More</h2>
@@ -81,6 +83,22 @@ function AppContent() {
                 <div className="text-left">
                   <p className="font-medium text-gray-900">Commission</p>
                   <p className="text-sm text-gray-500">View your earnings</p>
+                </div>
+              </div>
+              <span className="text-gray-400">→</span>
+            </button>
+
+            <button
+              onClick={() => setMoreView('share')}
+              className="w-full bg-white rounded-xl p-4 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+                  <span className="text-lg">🔗</span>
+                </div>
+                <div className="text-left">
+                  <p className="font-medium text-gray-900">Share Links</p>
+                  <p className="text-sm text-gray-500">Tracked referral links</p>
                 </div>
               </div>
               <span className="text-gray-400">→</span>

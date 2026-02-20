@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useAuth } from '../lib/auth'
-import { Home, Users, Link, MoreHorizontal, LogOut, Settings, ChevronDown, BadgeCheck, X } from 'lucide-react'
+import { Home, Users, CalendarDays, MoreHorizontal, LogOut, Settings, ChevronDown, BadgeCheck, X } from 'lucide-react'
 import FeedbackButton from './FeedbackButton'
 
 const navItems = [
   { id: 'home', label: 'Home', icon: Home },
   { id: 'leads', label: 'Leads', icon: Users },
-  { id: 'share', label: 'Share', icon: Link },
+  { id: 'events', label: 'Events', icon: CalendarDays },
   { id: 'more', label: 'More', icon: MoreHorizontal },
 ]
 
