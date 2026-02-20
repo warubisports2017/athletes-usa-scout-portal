@@ -10,7 +10,7 @@ const navItems = [
   { id: 'more', label: 'More', icon: MoreHorizontal },
 ]
 
-export default function Layout({ children, activeTab = 'home', onTabChange }) {
+export default function Layout({ children, activeTab = 'home', onTabChange, onAvatarClick }) {
   const { scout, signOut } = useAuth()
   const [showMenu, setShowMenu] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
@@ -33,20 +33,27 @@ export default function Layout({ children, activeTab = 'home', onTabChange }) {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-40">
         <div className="flex items-center justify-between max-w-lg md:max-w-4xl lg:max-w-6xl mx-auto">
-          {/* Scout info */}
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-[#E63946] rounded-full flex items-center justify-center">
-              <span className="text-white font-semibold text-sm">
-                {scoutName.charAt(0).toUpperCase()}
-              </span>
-            </div>
+          {/* Scout info — tap avatar to open profile */}
+          <button
+            onClick={onAvatarClick}
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
+            {scout?.photo_url ? (
+              <img src={scout.photo_url} alt={scoutName} className="w-9 h-9 rounded-full object-cover" />
+            ) : (
+              <div className="w-9 h-9 bg-[#E63946] rounded-full flex items-center justify-center">
+                <span className="text-white font-semibold text-sm">
+                  {scoutName.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
             <div className="flex items-center gap-1.5">
               <span className="font-semibold text-gray-900 text-sm">{scoutName}</span>
               {isVerified && (
                 <BadgeCheck size={16} className="text-[#E63946]" />
               )}
             </div>
-          </div>
+          </button>
 
           {/* Desktop navigation */}
           <nav className="hidden md:flex items-center gap-1">

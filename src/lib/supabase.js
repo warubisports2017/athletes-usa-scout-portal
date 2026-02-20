@@ -79,6 +79,63 @@ export async function updateScoutNotificationPrefs(scoutId, prefs) {
   return data
 }
 
+// Scout profile updates
+export async function updateScoutProfile(scoutId, updates) {
+  const { data, error } = await supabase
+    .from('scouts')
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq('id', scoutId)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function submitForReview(scoutId) {
+  const { data, error } = await supabase
+    .from('scouts')
+    .update({
+      profile_status: 'pending',
+      profile_submitted_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', scoutId)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+// Public profile (no auth needed — uses SECURITY DEFINER RPC)
+export async function getPublicScoutProfile(slug) {
+  const { data, error } = await supabase.rpc('get_scout_public_profile', { p_slug: slug })
+  if (error) throw error
+  return data
+}
+
+export async function getScoutPublicStats(slug) {
+  const { data, error } = await supabase.rpc('get_scout_public_stats', { p_slug: slug })
+  if (error) throw error
+  return data
+}
+
+// Photo upload
+export async function uploadScoutPhoto(scoutId, file, type = 'profile') {
+  const ext = file.name?.split('.').pop() || 'jpg'
+  const path = `${scoutId}/${type}-${Date.now()}.${ext}`
+
+  const { error } = await supabase.storage
+    .from('scout-photos')
+    .upload(path, file, { upsert: true })
+  if (error) throw error
+
+  const { data: urlData } = supabase.storage
+    .from('scout-photos')
+    .getPublicUrl(path)
+
+  return urlData.publicUrl
+}
+
 // Company-wide stats for motivation
 export async function getCompanyStats() {
   const now = new Date()

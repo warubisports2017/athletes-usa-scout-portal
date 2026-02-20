@@ -81,6 +81,12 @@ export function AuthProvider({ children }) {
     if (error) throw error
   }
 
+  async function refreshScout() {
+    if (user?.email) {
+      await loadScoutProfile(user.email)
+    }
+  }
+
   async function resetPassword(email) {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`
@@ -94,7 +100,8 @@ export function AuthProvider({ children }) {
     loading,
     signIn,
     signOut,
-    resetPassword
+    resetPassword,
+    refreshScout
   }
 
   return (
