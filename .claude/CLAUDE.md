@@ -21,14 +21,18 @@ Scout portal for AUSA affiliates to track leads, share referral links, and view 
 - `scout_resources` - Marketing materials and training
 - `scout_notification_prefs` - Email/push preferences
 - `athletes.referred_by_scout_id` - Links athletes to scouts
+- `coach_conversations` - AI coach chat threads (one active per scout)
+- `coach_messages` - Individual chat messages with token/latency tracking
 
 ## Features
 1. **Dashboard** - Stats overview, leads preview, quick actions
 2. **My Leads** - Full list with status timeline
-3. **Share Links** - Copy, WhatsApp, QR code generation
-4. **Commissions** - Earnings tracking
-5. **Resources** - Marketing materials, FAQs
-6. **Settings** - Notification preferences
+3. **Coach** - In-app AI scouting assistant (Gemini 2.5 Flash, streaming)
+4. **Share Links** - Copy, WhatsApp, QR code generation (in More menu)
+5. **Commissions** - Earnings tracking (in More menu)
+6. **Events** - Upcoming showcases & events (in More menu)
+7. **Resources** - Marketing materials, FAQs (in More menu)
+8. **Settings** - Notification preferences (in More menu)
 
 ## Status Mapping
 | Status | Color | Description |

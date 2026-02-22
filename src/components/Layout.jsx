@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { useAuth } from '../lib/auth'
-import { Home, Users, CalendarDays, MoreHorizontal, LogOut, Settings, ChevronDown, BadgeCheck, X } from 'lucide-react'
+import { Home, Users, Sparkles, MoreHorizontal, LogOut, Settings, ChevronDown, BadgeCheck, X } from 'lucide-react'
 import FeedbackButton from './FeedbackButton'
+import CoachWidget from './CoachWidget'
 
 const navItems = [
   { id: 'home', label: 'Home', icon: Home },
   { id: 'leads', label: 'Leads', icon: Users },
-  { id: 'events', label: 'Events', icon: CalendarDays },
+  { id: 'coach', label: 'Coach', icon: Sparkles },
   { id: 'more', label: 'More', icon: MoreHorizontal },
 ]
 
@@ -124,8 +125,11 @@ export default function Layout({ children, activeTab = 'home', onTabChange, onAv
         </div>
       </main>
 
+      {/* Coach widget — hidden on Coach tab */}
+      {activeTab !== 'coach' && <CoachWidget />}
+
       {/* Feedback widget */}
-      <FeedbackButton />
+      <FeedbackButton activeTab={activeTab} />
 
       {/* Bottom navigation - mobile only, desktop gets top nav in header */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 md:hidden">

@@ -1,6 +1,7 @@
 {
   "functions": {
-    "api/extract-cv.js": { "maxDuration": 30 }
+    "api/extract-cv.js": { "maxDuration": 30 },
+    "api/coach-chat.js": { "maxDuration": 60 }
   },
   "rewrites": [{ "source": "/(.*)", "destination": "/" }]
 }

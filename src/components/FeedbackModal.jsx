@@ -10,9 +10,7 @@ import { Sparkles, Send, ArrowRight, Upload, Loader2, AlertCircle, CheckCircle, 
 import { useAuth } from '../lib/auth'
 import { supabase } from '../lib/supabase'
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY
-
-export default function FeedbackModal({ onClose, onViewMyFeedback }) {
+export default function FeedbackModal({ onClose, onViewMyFeedback, page = 'scout_portal' }) {
   const { user } = useAuth()
   const fileInputRef = useRef(null)
 
@@ -54,49 +52,16 @@ export default function FeedbackModal({ onClose, onViewMyFeedback }) {
     setError(null)
 
     try {
-      const prompt = `Summarize this user feedback in ONE line (max 15 words).
-Classify as: Bug | Feature | Question | Other
-
-If the feedback is too vague to understand, return type "Unclear" and include a clarifyingQuestion.
-
-Feedback: "${message}"
-Page: Scout Portal
-
-Return ONLY valid JSON: { "summary": "...", "type": "Bug|Feature|Question|Other|Unclear", "clarifyingQuestion": "optional - only if Unclear" }`
-
-      if (!GEMINI_API_KEY) {
-        setAiSummary(message.slice(0, 100) + (message.length > 100 ? '...' : ''))
-        setAiType('Other')
-        setStep('confirm')
-        return
-      }
-
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.3, maxOutputTokens: 200 }
-          })
-        }
-      )
+      const response = await fetch('/api/feedback-analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, page })
+      })
 
       const data = await response.json()
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
-      const jsonMatch = text.match(/\{[\s\S]*\}/)
-
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0])
-        setAiSummary(parsed.summary || message.slice(0, 100))
-        setAiType(parsed.type || 'Other')
-        setAiClarifyingQuestion(parsed.clarifyingQuestion || '')
-      } else {
-        setAiSummary(message.slice(0, 100))
-        setAiType('Other')
-      }
-
+      setAiSummary(data.summary || message.slice(0, 100))
+      setAiType(data.type || 'Other')
+      setAiClarifyingQuestion(data.clarifyingQuestion || '')
       setStep('confirm')
     } catch (err) {
       console.error('AI analysis error:', err)
@@ -152,7 +117,7 @@ Return ONLY valid JSON: { "summary": "...", "type": "Bug|Feature|Question|Other|
         .insert({
           user_id: user?.id || null,
           user_email: user?.email || null,
-          page: 'scout_portal',
+          page,
           message,
           ai_summary: aiSummary,
           type: aiType === 'Unclear' ? 'Other' : aiType,
