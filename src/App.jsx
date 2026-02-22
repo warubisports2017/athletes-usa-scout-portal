@@ -65,7 +65,11 @@ function AppContent() {
         setActiveTab(tab)
         setMoreView(null)
       }} onAvatarClick={() => setShowProfile(true)}>
-        {activeTab === 'home' && <Dashboard onNavigateToEvents={() => setActiveTab('events')} />}
+        {activeTab === 'home' && <Dashboard
+          onNavigateToEvents={() => setActiveTab('events')}
+          onNavigateToShare={() => { setActiveTab('more'); setMoreView('share') }}
+          onNavigateToResources={() => { setActiveTab('more'); setMoreView('resources') }}
+        />}
         {activeTab === 'leads' && <LeadsList scoutId={scout?.id} />}
         {activeTab === 'events' && <EventsList />}
         {activeTab === 'more' && (

@@ -33,7 +33,7 @@ function formatCurrency(amount) {
   }).format(amount || 0)
 }
 
-export default function Dashboard({ onNavigateToEvents }) {
+export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNavigateToResources }) {
   const { scout, user } = useAuth()
   const [leads, setLeads] = useState([])
   const [commissions, setCommissions] = useState([])
@@ -202,7 +202,7 @@ export default function Dashboard({ onNavigateToEvents }) {
             {/* Quick Action Buttons - Mobile only */}
             <div className="grid grid-cols-3 gap-3 lg:hidden">
               <button
-                onClick={() => {/* TODO: Share functionality */}}
+                onClick={onNavigateToShare}
                 className="flex flex-col items-center gap-2 bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="w-12 h-12 rounded-full bg-[var(--ausa-red)] bg-opacity-10 flex items-center justify-center">
@@ -212,7 +212,7 @@ export default function Dashboard({ onNavigateToEvents }) {
               </button>
 
               <button
-                onClick={() => {/* TODO: QR Code functionality */}}
+                onClick={onNavigateToShare}
                 className="flex flex-col items-center gap-2 bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="w-12 h-12 rounded-full bg-[var(--ausa-navy)] bg-opacity-10 flex items-center justify-center">
@@ -222,7 +222,7 @@ export default function Dashboard({ onNavigateToEvents }) {
               </button>
 
               <button
-                onClick={() => {/* TODO: Resources functionality */}}
+                onClick={onNavigateToResources}
                 className="flex flex-col items-center gap-2 bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="w-12 h-12 rounded-full bg-[var(--ausa-success)] bg-opacity-10 flex items-center justify-center">
@@ -257,7 +257,7 @@ export default function Dashboard({ onNavigateToEvents }) {
             <div className="bg-white rounded-xl p-4 shadow-sm">
               <h3 className="font-semibold text-gray-900 mb-4">Quick Actions</h3>
               <div className="space-y-3">
-                <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left">
+                <button onClick={onNavigateToShare} className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left">
                   <div className="w-10 h-10 rounded-full bg-[var(--ausa-red)] bg-opacity-10 flex items-center justify-center">
                     <Share2 className="w-5 h-5 text-[var(--ausa-red)]" />
                   </div>
@@ -266,7 +266,7 @@ export default function Dashboard({ onNavigateToEvents }) {
                     <p className="text-xs text-gray-500">Copy or share via WhatsApp</p>
                   </div>
                 </button>
-                <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left">
+                <button onClick={onNavigateToShare} className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left">
                   <div className="w-10 h-10 rounded-full bg-[var(--ausa-navy)] bg-opacity-10 flex items-center justify-center">
                     <QrCode className="w-5 h-5 text-[var(--ausa-navy)]" />
                   </div>
@@ -275,7 +275,7 @@ export default function Dashboard({ onNavigateToEvents }) {
                     <p className="text-xs text-gray-500">Perfect for events</p>
                   </div>
                 </button>
-                <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left">
+                <button onClick={onNavigateToResources} className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left">
                   <div className="w-10 h-10 rounded-full bg-[var(--ausa-success)] bg-opacity-10 flex items-center justify-center">
                     <BookOpen className="w-5 h-5 text-[var(--ausa-success)]" />
                   </div>
