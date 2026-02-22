@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Sparkles, X, Send, Loader2 } from 'lucide-react'
 import { useAuth } from '../lib/auth'
 import { getActiveConversation, getConversationMessages, sendMessage } from '../lib/coach'
+import { getScoutLeads } from '../lib/supabase'
 import CoachMessage from './CoachMessage'
 
 export default function CoachWidget() {
@@ -18,16 +19,21 @@ export default function CoachWidget() {
   const [conversationId, setConversationId] = useState(null)
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState(null)
+  const [leads, setLeads] = useState([])
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
 
-  // Load conversation when first opened
+  // Load conversation and leads when first opened
   useEffect(() => {
     if (!open || loaded || !scout?.id) return
 
     async function load() {
       try {
-        const conv = await getActiveConversation(scout.id)
+        const [conv, scoutLeads] = await Promise.all([
+          getActiveConversation(scout.id),
+          getScoutLeads(scout.id),
+        ])
+        setLeads(scoutLeads || [])
         if (conv) {
           setConversationId(conv.id)
           const msgs = await getConversationMessages(conv.id)
@@ -68,7 +74,20 @@ export default function CoachWidget() {
     setMessages(prev => [...prev, userMsg])
 
     try {
-      const result = await sendMessage(msg, conversationId, (fullText) => {
+      const daysSinceJoin = scout?.created_at
+        ? Math.floor((Date.now() - new Date(scout.created_at).getTime()) / (1000 * 60 * 60 * 24))
+        : 0
+      const placedCount = leads.filter(l => l.process_status === 'Placed').length
+      const scoutContext = {
+        name: scout?.full_name || 'Scout',
+        daysSinceJoin,
+        totalLeads: leads.length,
+        signedLeads: leads.filter(l => ['Signed', 'In Process', 'Placed'].includes(l.process_status)).length,
+        placedLeads: placedCount,
+        profileComplete: !!(scout?.full_name && scout?.photo_url && scout?.bio && scout?.location),
+        verified: scout?.is_verified || false,
+      }
+      const result = await sendMessage(msg, conversationId, scout.id, scoutContext, (fullText) => {
         setStreaming(fullText)
       })
 

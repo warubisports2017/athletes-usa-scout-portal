@@ -1,5 +1,7 @@
 /**
  * Coach chat logic: conversation management, streaming, starters.
+ * All DB operations happen client-side (RLS handles access control).
+ * Only Gemini calls go through the serverless function.
  */
 import { supabase } from './supabase'
 
@@ -46,18 +48,52 @@ export async function startNewConversation(scoutId) {
   return data
 }
 
+// Get or create active conversation
+async function ensureConversation(scoutId) {
+  const existing = await getActiveConversation(scoutId)
+  if (existing) return existing.id
+
+  const created = await startNewConversation(scoutId)
+  return created.id
+}
+
 // Send message with streaming
-export async function sendMessage(message, conversationId, onChunk) {
+export async function sendMessage(message, conversationId, scoutId, scoutContext, onChunk) {
   const { data: { session } } = await supabase.auth.getSession()
   if (!session?.access_token) throw new Error('Not authenticated')
 
+  // Ensure we have a conversation
+  const convId = conversationId || await ensureConversation(scoutId)
+
+  // Save user message to DB
+  const { error: insertError } = await supabase.from('coach_messages').insert({
+    conversation_id: convId,
+    scout_id: scoutId,
+    role: 'user',
+    content: message,
+  })
+  if (insertError) throw insertError
+
+  // Load last 20 messages for context
+  const { data: history } = await supabase
+    .from('coach_messages')
+    .select('role, content')
+    .eq('conversation_id', convId)
+    .order('created_at', { ascending: true })
+    .limit(20)
+
+  // Call serverless function for Gemini streaming
   const response = await fetch('/api/coach-chat', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${session.access_token}`,
     },
-    body: JSON.stringify({ message, conversationId }),
+    body: JSON.stringify({
+      message,
+      history: history || [],
+      scoutContext,
+    }),
   })
 
   if (!response.ok) {
@@ -70,7 +106,6 @@ export async function sendMessage(message, conversationId, onChunk) {
   const decoder = new TextDecoder()
   let buffer = ''
   let fullText = ''
-  let convId = conversationId
 
   while (true) {
     const { done, value } = await reader.read()
@@ -84,9 +119,7 @@ export async function sendMessage(message, conversationId, onChunk) {
       if (!line.startsWith('data: ')) continue
       try {
         const data = JSON.parse(line.slice(6))
-        if (data.type === 'meta') {
-          convId = data.conversationId
-        } else if (data.type === 'text') {
+        if (data.type === 'text') {
           fullText += data.content
           onChunk?.(fullText, data.content)
         } else if (data.type === 'error') {
@@ -96,6 +129,16 @@ export async function sendMessage(message, conversationId, onChunk) {
         if (e.message && e.message !== 'Unexpected end of JSON input') throw e
       }
     }
+  }
+
+  // Save assistant response to DB
+  if (fullText) {
+    await supabase.from('coach_messages').insert({
+      conversation_id: convId,
+      scout_id: scoutId,
+      role: 'assistant',
+      content: fullText,
+    })
   }
 
   return { text: fullText, conversationId: convId }

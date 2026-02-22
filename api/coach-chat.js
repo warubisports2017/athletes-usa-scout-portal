@@ -1,6 +1,7 @@
 /**
  * Serverless function: Scout Coach AI chat.
- * JWT auth via anon key, rate limit (10/min/scout), Gemini streaming.
+ * Receives message + scout context from client, calls Gemini, streams back.
+ * All DB operations happen client-side where auth already works.
  */
 import { createClient } from '@supabase/supabase-js'
 import { KNOWLEDGE_BASE } from './knowledge.js'
@@ -10,30 +11,18 @@ const rateLimit = new Map()
 const RATE_LIMIT = 10
 const RATE_WINDOW = 60 * 1000
 
-function isRateLimited(scoutId) {
+function isRateLimited(key) {
   const now = Date.now()
-  const entry = rateLimit.get(scoutId)
+  const entry = rateLimit.get(key)
   if (!entry || now > entry.resetTime) {
-    rateLimit.set(scoutId, { count: 1, resetTime: now + RATE_WINDOW })
+    rateLimit.set(key, { count: 1, resetTime: now + RATE_WINDOW })
     return false
   }
   entry.count++
   return entry.count > RATE_LIMIT
 }
 
-function buildSystemPrompt(scout, leads, commissions) {
-  const totalLeads = leads?.length || 0
-  const placedLeads = leads?.filter(l => l.process_status === 'Placed')?.length || 0
-  const signedLeads = leads?.filter(l => ['Signed', 'In Process', 'Placed'].includes(l.process_status))?.length || 0
-  const totalCommission = commissions?.reduce((sum, c) => sum + (c.amount || 0), 0) || 0
-  const paidCommission = commissions?.filter(c => c.status === 'paid')?.reduce((sum, c) => sum + (c.amount || 0), 0) || 0
-
-  const daysSinceJoin = scout?.created_at
-    ? Math.floor((Date.now() - new Date(scout.created_at).getTime()) / (1000 * 60 * 60 * 24))
-    : 0
-
-  const profileComplete = !!(scout?.full_name && scout?.photo_url && scout?.bio && scout?.location)
-
+function buildSystemPrompt(scoutContext) {
   return `You are the Warubi Scout Coach — a friendly, knowledgeable AI assistant embedded in the Athletes USA Scout Portal.
 
 IDENTITY & TONE:
@@ -52,15 +41,13 @@ SAFETY RULES:
 - Stay on topic: scouting, recruiting, athletes, AUSA. Redirect off-topic questions politely.
 
 SCOUT CONTEXT:
-- Name: ${scout?.full_name || 'Scout'}
-- Member since: ${daysSinceJoin} days ago
-- Total leads referred: ${totalLeads}
-- Signed athletes: ${signedLeads}
-- Placed athletes: ${placedLeads}
-- Total commission earned: €${totalCommission.toFixed(0)}
-- Commission paid out: €${paidCommission.toFixed(0)}
-- Profile complete: ${profileComplete ? 'Yes' : 'No — encourage them to complete it'}
-- Verified: ${scout?.is_verified ? 'Yes' : 'Not yet'}
+- Name: ${scoutContext.name || 'Scout'}
+- Member since: ${scoutContext.daysSinceJoin || 0} days ago
+- Total leads referred: ${scoutContext.totalLeads || 0}
+- Signed athletes: ${scoutContext.signedLeads || 0}
+- Placed athletes: ${scoutContext.placedLeads || 0}
+- Profile complete: ${scoutContext.profileComplete ? 'Yes' : 'No — encourage them to complete it'}
+- Verified: ${scoutContext.verified ? 'Yes' : 'Not yet'}
 
 KNOWLEDGE BASE:
 ${KNOWLEDGE_BASE}`
@@ -71,7 +58,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  // Validate JWT
+  // Verify JWT via Supabase auth
   const authHeader = req.headers.authorization
   if (!authHeader?.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Unauthorized' })
@@ -89,93 +76,33 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'AI service not configured' })
   }
 
-  // Create authenticated Supabase client using scout's JWT
-  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    global: { headers: { Authorization: `Bearer ${token}` } },
-  })
-
-  // Verify JWT and get user
+  // Verify the JWT is valid
+  const supabase = createClient(supabaseUrl, supabaseAnonKey)
   const { data: { user }, error: authError } = await supabase.auth.getUser(token)
   if (authError || !user) {
     return res.status(401).json({ error: 'Invalid token' })
   }
 
-  const scoutId = user.id
-
-  // Rate limit by scout
-  if (isRateLimited(scoutId)) {
+  // Rate limit by user ID
+  if (isRateLimited(user.id)) {
     return res.status(429).json({ error: 'Too many messages. Please wait a moment.' })
   }
 
-  const { message, conversationId } = req.body || {}
+  const { message, history, scoutContext } = req.body || {}
 
   if (!message || typeof message !== 'string' || message.length > 2000) {
     return res.status(400).json({ error: 'Invalid message' })
   }
 
   try {
-    // Get scout profile, leads, and commissions for context
-    const [scoutRes, leadsRes, commissionsRes] = await Promise.all([
-      supabase.from('scouts').select('*').eq('id', scoutId).single(),
-      supabase.from('athletes').select('id, process_status').eq('referred_by_scout_id', scoutId),
-      supabase.from('scout_commissions').select('amount, status').eq('scout_id', scoutId),
-    ])
-
-    const scout = scoutRes.data
-    const leads = leadsRes.data || []
-    const commissions = commissionsRes.data || []
-
-    // Get or create conversation
-    let convId = conversationId
-    if (!convId) {
-      // Find active conversation
-      const { data: activeConv } = await supabase
-        .from('coach_conversations')
-        .select('id')
-        .eq('scout_id', scoutId)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-
-      if (activeConv) {
-        convId = activeConv.id
-      } else {
-        // Create new conversation
-        const { data: newConv, error: convError } = await supabase
-          .from('coach_conversations')
-          .insert({ scout_id: scoutId })
-          .select('id')
-          .single()
-        if (convError) throw convError
-        convId = newConv.id
-      }
-    }
-
-    // Load conversation history (last 20 messages for context)
-    const { data: history } = await supabase
-      .from('coach_messages')
-      .select('role, content')
-      .eq('conversation_id', convId)
-      .order('created_at', { ascending: true })
-      .limit(20)
-
-    // Save user message
-    await supabase.from('coach_messages').insert({
-      conversation_id: convId,
-      scout_id: scoutId,
-      role: 'user',
-      content: message,
-    })
-
     // Build Gemini request
-    const systemPrompt = buildSystemPrompt(scout, leads, commissions)
+    const systemPrompt = buildSystemPrompt(scoutContext || {})
     const contents = [
       { role: 'user', parts: [{ text: systemPrompt }] },
       { role: 'model', parts: [{ text: 'Understood. I am the Warubi Scout Coach. I will help this scout with their questions about scouting, recruiting, and Athletes USA.' }] },
     ]
 
-    // Add conversation history
+    // Add conversation history from client
     if (history?.length) {
       for (const msg of history) {
         contents.push({
@@ -189,7 +116,6 @@ export default async function handler(req, res) {
     contents.push({ role: 'user', parts: [{ text: message }] })
 
     // Stream from Gemini
-    const startTime = Date.now()
     const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${geminiKey}`,
       {
@@ -219,11 +145,7 @@ export default async function handler(req, res) {
       Connection: 'keep-alive',
     })
 
-    // Send conversation ID first
-    res.write(`data: ${JSON.stringify({ type: 'meta', conversationId: convId })}\n\n`)
-
     let fullResponse = ''
-    let tokensUsed = 0
 
     // Read the stream
     const reader = geminiRes.body.getReader()
@@ -252,35 +174,16 @@ export default async function handler(req, res) {
             fullResponse += text
             res.write(`data: ${JSON.stringify({ type: 'text', content: text })}\n\n`)
           }
-          // Track tokens
-          if (parsed.usageMetadata?.totalTokenCount) {
-            tokensUsed = parsed.usageMetadata.totalTokenCount
-          }
         } catch {
           // Skip malformed JSON chunks
         }
       }
     }
 
-    const latencyMs = Date.now() - startTime
-
-    // Save assistant response
-    if (fullResponse) {
-      await supabase.from('coach_messages').insert({
-        conversation_id: convId,
-        scout_id: scoutId,
-        role: 'assistant',
-        content: fullResponse,
-        tokens_used: tokensUsed || null,
-        latency_ms: latencyMs,
-      })
-    }
-
     res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`)
     res.end()
   } catch (err) {
     console.error('Coach chat error:', err)
-    // If headers already sent, end stream
     if (res.headersSent) {
       res.write(`data: ${JSON.stringify({ type: 'error', message: 'An error occurred' })}\n\n`)
       res.end()
