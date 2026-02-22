@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../lib/auth'
 import { getScoutLeads, getScoutCommissions, getCompanyStats } from '../lib/supabase'
-import { Share2, QrCode, BookOpen, CheckCircle, Users, Trophy, DollarSign } from 'lucide-react'
+import { Share2, BookOpen, CheckCircle, Users, Trophy, DollarSign } from 'lucide-react'
 import EventBanner from './EventBanner'
 
 // Status color mapping
@@ -33,7 +33,7 @@ function formatCurrency(amount) {
   }).format(amount || 0)
 }
 
-export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNavigateToResources }) {
+export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNavigateToResources, onNavigateToCommission }) {
   const { scout, user } = useAuth()
   const [leads, setLeads] = useState([])
   const [commissions, setCommissions] = useState([])
@@ -208,17 +208,17 @@ export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNav
                 <div className="w-12 h-12 rounded-full bg-[var(--ausa-red)] bg-opacity-10 flex items-center justify-center">
                   <Share2 className="w-5 h-5 text-[var(--ausa-red)]" />
                 </div>
-                <span className="text-sm font-medium text-gray-700">Share Link</span>
+                <span className="text-sm font-medium text-gray-700">Share & QR</span>
               </button>
 
               <button
-                onClick={onNavigateToShare}
+                onClick={onNavigateToCommission}
                 className="flex flex-col items-center gap-2 bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="w-12 h-12 rounded-full bg-[var(--ausa-navy)] bg-opacity-10 flex items-center justify-center">
-                  <QrCode className="w-5 h-5 text-[var(--ausa-navy)]" />
+                <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center">
+                  <DollarSign className="w-5 h-5 text-amber-600" />
                 </div>
-                <span className="text-sm font-medium text-gray-700">QR Code</span>
+                <span className="text-sm font-medium text-gray-700">Commission</span>
               </button>
 
               <button
@@ -262,17 +262,17 @@ export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNav
                     <Share2 className="w-5 h-5 text-[var(--ausa-red)]" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Share Referral Link</p>
-                    <p className="text-xs text-gray-500">Copy or share via WhatsApp</p>
+                    <p className="font-medium text-gray-900">Share & QR Code</p>
+                    <p className="text-xs text-gray-500">Links, WhatsApp, QR codes</p>
                   </div>
                 </button>
-                <button onClick={onNavigateToShare} className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left">
-                  <div className="w-10 h-10 rounded-full bg-[var(--ausa-navy)] bg-opacity-10 flex items-center justify-center">
-                    <QrCode className="w-5 h-5 text-[var(--ausa-navy)]" />
+                <button onClick={onNavigateToCommission} className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left">
+                  <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
+                    <DollarSign className="w-5 h-5 text-amber-600" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Generate QR Code</p>
-                    <p className="text-xs text-gray-500">Perfect for events</p>
+                    <p className="font-medium text-gray-900">Commission</p>
+                    <p className="text-xs text-gray-500">View your earnings</p>
                   </div>
                 </button>
                 <button onClick={onNavigateToResources} className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left">

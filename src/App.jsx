@@ -69,6 +69,7 @@ function AppContent() {
           onNavigateToEvents={() => setActiveTab('events')}
           onNavigateToShare={() => { setActiveTab('more'); setMoreView('share') }}
           onNavigateToResources={() => { setActiveTab('more'); setMoreView('resources') }}
+          onNavigateToCommission={() => { setActiveTab('more'); setMoreView('commission') }}
         />}
         {activeTab === 'leads' && <LeadsList scoutId={scout?.id} />}
         {activeTab === 'events' && <EventsList />}
