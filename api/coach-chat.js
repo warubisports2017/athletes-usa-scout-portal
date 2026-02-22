@@ -1,6 +1,6 @@
 /**
  * Serverless function: Scout Coach AI chat.
- * JWT auth, rate limit (10/min/scout), Gemini streaming, saves messages via service role.
+ * JWT auth via anon key, rate limit (10/min/scout), Gemini streaming.
  */
 import { createClient } from '@supabase/supabase-js'
 import { KNOWLEDGE_BASE } from './knowledge.js'
@@ -79,19 +79,23 @@ export default async function handler(req, res) {
   const token = authHeader.slice(7)
 
   const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY
   const geminiKey = process.env.GEMINI_API_KEY
 
-  if (!supabaseUrl || !serviceKey) {
+  if (!supabaseUrl || !supabaseAnonKey) {
     return res.status(500).json({ error: 'Server configuration error' })
   }
   if (!geminiKey) {
     return res.status(500).json({ error: 'AI service not configured' })
   }
 
-  // Auth: verify JWT and get user
-  const supabaseAuth = createClient(supabaseUrl, serviceKey)
-  const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(token)
+  // Create authenticated Supabase client using scout's JWT
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+  })
+
+  // Verify JWT and get user
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token)
   if (authError || !user) {
     return res.status(401).json({ error: 'Invalid token' })
   }
@@ -108,8 +112,6 @@ export default async function handler(req, res) {
   if (!message || typeof message !== 'string' || message.length > 2000) {
     return res.status(400).json({ error: 'Invalid message' })
   }
-
-  const supabase = createClient(supabaseUrl, serviceKey)
 
   try {
     // Get scout profile, leads, and commissions for context
