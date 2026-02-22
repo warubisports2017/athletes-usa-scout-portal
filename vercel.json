@@ -1,7 +1,8 @@
 {
   "functions": {
     "api/extract-cv.js": { "maxDuration": 30 },
-    "api/coach-chat.js": { "maxDuration": 60 }
+    "api/coach-chat.js": { "maxDuration": 60 },
+    "api/webhook/wpforms.js": { "maxDuration": 10 }
   },
   "rewrites": [{ "source": "/(.*)", "destination": "/" }]
 }

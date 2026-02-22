@@ -179,6 +179,17 @@ export async function getNextFeaturedEvent() {
   return data
 }
 
+// Website leads from WordPress forms (real referral tracking)
+export async function getWebsiteLeads(scoutId) {
+  const { data, error } = await supabase
+    .from('website_leads')
+    .select('id, first_name, last_name, email, sport, form_source, created_at')
+    .eq('scout_ref', scoutId)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
 // Company-wide stats for motivation
 export async function getCompanyStats() {
   const now = new Date()

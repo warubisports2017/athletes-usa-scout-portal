@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getScoutLeads } from '../lib/supabase'
+import { getScoutLeads, getWebsiteLeads } from '../lib/supabase'
 import LeadDetail from './LeadDetail'
 
 // Status configuration with Tailwind colors
@@ -28,6 +28,7 @@ function formatDate(dateString) {
 
 export default function LeadsList({ scoutId }) {
   const [leads, setLeads] = useState([])
+  const [websiteLeads, setWebsiteLeads] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [selectedLead, setSelectedLead] = useState(null)
@@ -38,8 +39,12 @@ export default function LeadsList({ scoutId }) {
 
       try {
         setLoading(true)
-        const data = await getScoutLeads(scoutId)
+        const [data, webData] = await Promise.all([
+          getScoutLeads(scoutId),
+          getWebsiteLeads(scoutId),
+        ])
         setLeads(data || [])
+        setWebsiteLeads(webData || [])
       } catch (err) {
         console.error('Error fetching leads:', err)
         setError(err.message)
@@ -68,7 +73,7 @@ export default function LeadsList({ scoutId }) {
     )
   }
 
-  if (leads.length === 0) {
+  if (leads.length === 0 && websiteLeads.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
@@ -86,6 +91,47 @@ export default function LeadsList({ scoutId }) {
 
   return (
     <>
+      {/* Website Form Submissions */}
+      {websiteLeads.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-2 h-2 rounded-full bg-green-500"></div>
+            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Website Submissions via Your Link</h3>
+            <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">{websiteLeads.length}</span>
+          </div>
+          <div className="space-y-2">
+            {websiteLeads.map((lead) => (
+              <div key={lead.id} className="bg-white rounded-lg border border-green-200 p-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center">
+                    <span className="text-green-700 font-medium">
+                      {(lead.first_name?.[0] || '?').toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium text-gray-900 truncate">
+                        {lead.first_name} {lead.last_name}
+                      </h3>
+                      {lead.sport && (
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{lead.sport}</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded-full">
+                        {lead.form_source === 'showcase' ? 'Showcase Form' : 'Evaluation Form'}
+                      </span>
+                      <span className="text-xs text-gray-400">{formatDate(lead.created_at)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Tracked Athletes */}
       <div className="space-y-3">
         {leads.map((lead) => {
           const statusStyle = getStatusStyle(lead.process_status)

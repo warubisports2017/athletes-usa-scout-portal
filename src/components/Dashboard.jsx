@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../lib/auth'
-import { getScoutLeads, getScoutCommissions, getCompanyStats } from '../lib/supabase'
-import { Share2, BookOpen, CheckCircle, Users, Trophy, DollarSign } from 'lucide-react'
+import { getScoutLeads, getScoutCommissions, getCompanyStats, getWebsiteLeads } from '../lib/supabase'
+import { Share2, BookOpen, CheckCircle, Users, Trophy, DollarSign, Globe, ArrowRight } from 'lucide-react'
 import EventBanner from './EventBanner'
 
 // Status color mapping
@@ -36,6 +36,7 @@ function formatCurrency(amount) {
 export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNavigateToResources, onNavigateToCommission }) {
   const { scout, user } = useAuth()
   const [leads, setLeads] = useState([])
+  const [websiteLeads, setWebsiteLeads] = useState([])
   const [commissions, setCommissions] = useState([])
   const [companyStats, setCompanyStats] = useState({ placedThisMonth: 0, signupsThisMonth: 0 })
   const [loading, setLoading] = useState(true)
@@ -51,12 +52,14 @@ export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNav
   async function loadData() {
     try {
       setLoading(true)
-      const [leadsData, commissionsData, statsData] = await Promise.all([
+      const [leadsData, commissionsData, statsData, webLeadsData] = await Promise.all([
         getScoutLeads(scout.id),
         getScoutCommissions(scout.id),
         getCompanyStats(),
+        getWebsiteLeads(scout.id),
       ])
       setLeads(leadsData || [])
+      setWebsiteLeads(webLeadsData || [])
       setCommissions(commissionsData || [])
       setCompanyStats(statsData || { placedThisMonth: 0, signupsThisMonth: 0 })
     } catch (error) {
@@ -66,8 +69,8 @@ export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNav
     }
   }
 
-  // Calculate stats
-  const totalLeads = leads.length
+  // Calculate stats (combine tracked athletes + website form submissions)
+  const totalLeads = leads.length + websiteLeads.length
   const placedCount = leads.filter(l => l.process_status === 'Placed').length
   const totalEarned = commissions
     .filter(c => c.status === 'paid')
@@ -160,6 +163,47 @@ export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNav
                 </div>
               </div>
             </div>
+
+            {/* Link Activity - Website form submissions via scout's referral link */}
+            {websiteLeads.length > 0 && (
+              <div className="bg-white rounded-xl shadow-sm overflow-hidden border-l-4 border-green-500">
+                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-green-600" />
+                    <h2 className="font-semibold text-gray-900">Link Activity</h2>
+                    <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">{websiteLeads.length}</span>
+                  </div>
+                </div>
+                <div className="divide-y divide-gray-100">
+                  {websiteLeads.slice(0, 5).map((lead) => (
+                    <div key={lead.id} className="px-4 py-3 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        <div>
+                          <span className="font-medium text-gray-900">
+                            {lead.first_name} {lead.last_name}
+                          </span>
+                          {lead.sport && <span className="text-xs text-gray-500 ml-2">{lead.sport}</span>}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-400">
+                          {new Date(lead.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">
+                          {lead.form_source === 'showcase' ? 'Showcase' : 'Evaluation'}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {websiteLeads.length > 5 && (
+                  <div className="px-4 py-2 bg-gray-50 text-center">
+                    <span className="text-xs text-gray-500">+{websiteLeads.length - 5} more form submissions via your link</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* My Leads Preview */}
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
