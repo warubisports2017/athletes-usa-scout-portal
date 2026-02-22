@@ -1,57 +1,95 @@
 import { createContext, useContext, useEffect, useState, useRef } from 'react'
-import { supabase, getScoutProfile } from './supabase'
+import { supabase, supabaseUrl, getScoutProfile } from './supabase'
 
 const AuthContext = createContext({})
 
+// Read cached Supabase session synchronously from localStorage
+// This lets us skip the auth spinner for returning users
+function getCachedUser() {
+  try {
+    const ref = supabaseUrl?.split('//')[1]?.split('.')[0]
+    if (!ref) return null
+    const raw = localStorage.getItem(`sb-${ref}-auth-token`)
+    if (!raw) return null
+    return JSON.parse(raw)?.user ?? null
+  } catch {
+    return null
+  }
+}
+
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
+  const cachedUser = getCachedUser()
+  const [user, setUser] = useState(cachedUser)
   const [scout, setScout] = useState(null)
-  const [loading, setLoading] = useState(true)
+  // Skip loading spinner if we have a cached session
+  const [loading, setLoading] = useState(!cachedUser)
   const profileFetchedRef = useRef(false)
 
   useEffect(() => {
-    // Safety timeout - if auth doesn't resolve in 5s, stop loading
-    const timeout = setTimeout(() => {
-      setLoading(false)
-    }, 5000)
+    let subscription = null
 
-    // Get initial session
-    supabase.auth.getSession()
-      .then(({ data: { session } }) => {
-        setUser(session?.user ?? null)
-        if (session?.user) {
-          loadScoutProfile(session.user.email)
-        } else {
-          setLoading(false)
-        }
-      })
-      .catch((err) => {
-        console.error('Failed to get session:', err)
-        setUser(null)
-        setScout(null)
+    const initAuth = async () => {
+      // Timeout to prevent infinite loading if auth/network hangs
+      const authTimeout = setTimeout(() => {
+        console.warn('Auth initialization timeout - forcing load')
         setLoading(false)
-      })
+      }, 5000)
+
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+
+        if (error) {
+          console.error('Error getting session:', error)
+          setUser(null)
+          setLoading(false)
+          return
+        }
+
+        setUser(session?.user ?? null)
+        if (session?.user && !profileFetchedRef.current) {
+          profileFetchedRef.current = true
+          loadScoutProfile(session.user.email)
+        }
+        // Set loading false right after getSession — don't wait for profile fetch
+        setLoading(false)
+      } catch (error) {
+        console.error('Auth initialization error:', error)
+        setUser(null)
+        setLoading(false)
+      } finally {
+        clearTimeout(authTimeout)
+      }
+    }
+
+    // Start profile fetch immediately from cached user (don't wait for getSession)
+    if (cachedUser && !profileFetchedRef.current) {
+      profileFetchedRef.current = true
+      loadScoutProfile(cachedUser.email)
+    }
+
+    initAuth()
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setUser(session?.user ?? null)
-        if (session?.user) {
-          // Skip if getSession() already loaded the profile
-          if (!profileFetchedRef.current) {
-            await loadScoutProfile(session.user.email)
+    try {
+      const { data } = supabase.auth.onAuthStateChange(
+        (event, session) => {
+          if (event === 'INITIAL_SESSION') return
+          setUser(session?.user ?? null)
+          if (session?.user) {
+            loadScoutProfile(session.user.email)
+          } else {
+            profileFetchedRef.current = false
+            setScout(null)
           }
-        } else {
-          profileFetchedRef.current = false
-          setScout(null)
-          setLoading(false)
         }
-      }
-    )
+      )
+      subscription = data?.subscription
+    } catch (error) {
+      console.error('Error setting up auth listener:', error)
+    }
 
     return () => {
-      clearTimeout(timeout)
-      subscription.unsubscribe()
+      if (subscription) subscription.unsubscribe()
     }
   }, [])
 

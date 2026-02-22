@@ -1,12 +1,23 @@
 import { createClient } from '@supabase/supabase-js'
 
+export const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+
 export const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
+  supabaseUrl,
   import.meta.env.VITE_SUPABASE_ANON_KEY,
   {
     auth: {
       lockAcquireTimeout: 1000,
       lock: async (name, acquireTimeout, fn) => await fn()
+    },
+    global: {
+      // Abort any Supabase request that hangs longer than 15s
+      fetch: (url, options = {}) => {
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 15000)
+        return fetch(url, { ...options, signal: controller.signal })
+          .finally(() => clearTimeout(timeout))
+      }
     }
   }
 )
