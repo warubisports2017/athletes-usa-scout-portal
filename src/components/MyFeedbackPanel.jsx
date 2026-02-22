@@ -2,7 +2,7 @@
  * MyFeedbackPanel - Shows user's feedback history with status
  */
 import { useState, useEffect } from 'react'
-import { X, Plus, Clock, Loader2, MessageSquare } from 'lucide-react'
+import { X, Plus, Clock, Loader2, MessageSquare, CheckCircle2, MessageCircle } from 'lucide-react'
 import { useAuth } from '../lib/auth'
 import { supabase } from '../lib/supabase'
 
@@ -42,6 +42,11 @@ export default function MyFeedbackPanel({ onClose, onNewFeedback }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  // Mark feedback as viewed — clears the amber "updated" badge
+  useEffect(() => {
+    localStorage.setItem('lastViewedFeedback', new Date().toISOString())
+  }, [])
+
   useEffect(() => {
     if (!user?.id) {
       setLoading(false)
@@ -52,7 +57,7 @@ export default function MyFeedbackPanel({ onClose, onNewFeedback }) {
       try {
         const { data, error: fetchError } = await supabase
           .from('feedback')
-          .select('id, ai_summary, type, status, created_at')
+          .select('id, ai_summary, type, status, admin_notes, created_at')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
 
@@ -67,6 +72,23 @@ export default function MyFeedbackPanel({ onClose, onNewFeedback }) {
     }
 
     fetchFeedback()
+
+    // Real-time updates — see status changes as they happen
+    const channel = supabase
+      .channel('my-feedback-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'feedback',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => fetchFeedback()
+      )
+      .subscribe()
+
+    return () => supabase.removeChannel(channel)
   }, [user?.id])
 
   const openCount = feedback.filter(f => f.status === 'open').length
@@ -112,16 +134,23 @@ export default function MyFeedbackPanel({ onClose, onNewFeedback }) {
             {feedback.map(item => {
               const statusConfig = STATUS_CONFIG[item.status] || STATUS_CONFIG.open
               const typeColor = TYPE_COLORS[item.type] || TYPE_COLORS.Other
-              const statusDot = item.status === 'open' ? '#3b82f6'
-                : item.status === 'in_progress' ? '#f59e0b'
-                : item.status === 'done' ? '#10b981' : '#6b7280'
+              const isResolved = item.status === 'done' || item.status === 'wont_fix'
 
               return (
-                <div key={item.id} className="sp-feedback-item">
+                <div key={item.id} className={`sp-feedback-item${isResolved ? ' sp-feedback-resolved' : ''}`}>
                   <div className="sp-feedback-item-main">
-                    <span className="sp-feedback-dot" style={{ background: statusDot }} />
+                    {isResolved
+                      ? <CheckCircle2 size={14} style={{ color: statusConfig.color, flexShrink: 0 }} />
+                      : <span className="sp-feedback-dot" style={{ background: statusConfig.color }} />
+                    }
                     <span className="sp-feedback-summary">"{item.ai_summary}"</span>
                   </div>
+                  {item.admin_notes && (
+                    <div className="sp-feedback-admin-reply">
+                      <MessageCircle size={12} />
+                      <span>{item.admin_notes}</span>
+                    </div>
+                  )}
                   <div className="sp-feedback-item-meta">
                     <span className="sp-type-badge" style={{ background: typeColor }}>
                       {item.type}
