@@ -74,7 +74,8 @@ export default async function handler(req, res) {
     const firstName = fieldValues['Vorname'] || fieldValues['First Name'] || fieldValues['Name']?.split(' ')[0] || ''
     const lastName = fieldValues['Nachname'] || fieldValues['Last Name'] || fieldValues['Name']?.split(' ').slice(1).join(' ') || ''
     const email = fieldValues['Email'] || fieldValues['E-Mail'] || fieldValues['E-mail'] || ''
-    const phone = fieldValues['Telefon'] || fieldValues['Phone'] || fieldValues['Telefonnummer'] || ''
+    // Phone field names vary across forms (e.g. "Telefon/WhatsApp #"), so match partially
+    const phone = Object.entries(fieldValues).find(([k]) => /telefon|phone/i.test(k))?.[1] || ''
     const sport = fieldValues['Sportart'] || fieldValues['Sport'] || ''
 
     // Init Supabase with anon key (RPC is granted to anon)
