@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../lib/auth'
-import { getScoutLeads, getScoutCommissions, getCompanyStats, getWebsiteLeads } from '../lib/supabase'
+import { getScoutLeads, getScoutCommissions, getWebsiteLeads } from '../lib/supabase'
 import { Share2, BookOpen, CheckCircle, Users, Trophy, DollarSign, Globe, ArrowRight } from 'lucide-react'
 import EventBanner from './EventBanner'
 
@@ -60,7 +60,6 @@ export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNav
   const [leads, setLeads] = useState([])
   const [websiteLeads, setWebsiteLeads] = useState([])
   const [commissions, setCommissions] = useState([])
-  const [companyStats, setCompanyStats] = useState({ placedThisMonth: 0, signupsThisMonth: 0 })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -74,16 +73,14 @@ export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNav
   async function loadData() {
     try {
       setLoading(true)
-      const [leadsData, commissionsData, statsData, webLeadsData] = await Promise.all([
+      const [leadsData, commissionsData, webLeadsData] = await Promise.all([
         getScoutLeads(scout.id),
         getScoutCommissions(scout.id),
-        getCompanyStats(),
         getWebsiteLeads(scout.id),
       ])
       setLeads(leadsData || [])
       setWebsiteLeads(webLeadsData || [])
       setCommissions(commissionsData || [])
-      setCompanyStats(statsData || { placedThisMonth: 0, signupsThisMonth: 0 })
     } catch (error) {
       console.error('Failed to load dashboard data:', error)
     } finally {
@@ -183,24 +180,6 @@ export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNav
             <p className="text-xs text-gray-500">Earned</p>
           </div>
         </div>
-
-            {/* Company-Wide Stats - Mobile only */}
-            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-100 lg:hidden">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-xl">🏆</span>
-                <h2 className="font-semibold text-gray-900">AUSA This Month</h2>
-              </div>
-              <div className="flex gap-6">
-                <div>
-                  <p className="text-2xl font-bold text-amber-700">{companyStats.placedThisMonth}</p>
-                  <p className="text-xs text-gray-600">Athletes Placed</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-amber-700">{companyStats.signupsThisMonth}</p>
-                  <p className="text-xs text-gray-600">New Signups</p>
-                </div>
-              </div>
-            </div>
 
             {/* Your Impact - Mobile only */}
             <div className="sp-impact-card lg:hidden">
@@ -345,24 +324,6 @@ export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNav
 
           {/* Right column - Sidebar (desktop only) */}
           <div className="hidden lg:block space-y-6">
-            {/* Company-Wide Stats */}
-            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-100">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-xl">🏆</span>
-                <h2 className="font-semibold text-gray-900">AUSA This Month</h2>
-              </div>
-              <div className="flex gap-6">
-                <div>
-                  <p className="text-2xl font-bold text-amber-700">{companyStats.placedThisMonth}</p>
-                  <p className="text-xs text-gray-600">Athletes Placed</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-amber-700">{companyStats.signupsThisMonth}</p>
-                  <p className="text-xs text-gray-600">New Signups</p>
-                </div>
-              </div>
-            </div>
-
             {/* Your Impact - Desktop */}
             <div className="sp-impact-card">
               <h3 className="font-semibold text-gray-900 mb-1">Your Impact</h3>
