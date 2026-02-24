@@ -618,6 +618,17 @@ body {
   .sp-coach-widget-drawer { bottom: 24px; right: 24px; }
 }
 
+/* Coach markdown */
+.sp-coach-markdown p { margin: 0 0 0.5em; }
+.sp-coach-markdown p:last-child { margin-bottom: 0; }
+.sp-coach-markdown ul { margin: 0.25em 0 0.5em; padding-left: 1.25em; list-style: disc; }
+.sp-coach-markdown li { margin-bottom: 0.15em; }
+.sp-coach-markdown code {
+  background: #f3f4f6; padding: 1px 5px; border-radius: 4px;
+  font-size: 0.9em; font-family: ui-monospace, monospace;
+}
+.sp-coach-markdown strong { font-weight: 600; }
+
 /* Streaming cursor */
 .sp-coach-cursor {
   display: inline-block;
