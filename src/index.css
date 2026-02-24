@@ -570,6 +570,15 @@ body {
   font-size: 13px;
 }
 
+/* ===== Impact Card ===== */
+.sp-impact-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border-top: 3px solid #2A9D8F;
+}
+
 /* ===== Coach Widget ===== */
 
 .sp-coach-widget-button {

@@ -4,6 +4,28 @@ import { getScoutLeads, getScoutCommissions, getCompanyStats, getWebsiteLeads } 
 import { Share2, BookOpen, CheckCircle, Users, Trophy, DollarSign, Globe, ArrowRight } from 'lucide-react'
 import EventBanner from './EventBanner'
 
+// Scout level config
+const SCOUT_LEVELS = {
+  champion:   { label: 'Champion',   emoji: '🏆', bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-300' },
+  pathfinder: { label: 'Pathfinder', emoji: '⭐', bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-300' },
+  connector:  { label: 'Connector',  emoji: '🤝', bg: 'bg-blue-100',   text: 'text-blue-800',   border: 'border-blue-300' },
+  starter:    { label: 'Starter',    emoji: '🌱', bg: 'bg-green-100',  text: 'text-green-800',  border: 'border-green-300' },
+}
+
+const STATUS_PRIORITY = { 'Placed': 4, 'In Process': 3, 'Signed': 3, 'Assessment': 2, 'Eval Call': 2, 'Lead Created': 1 }
+
+function getScoutLevel(leads, websiteLeads) {
+  const highest = Math.max(0, ...leads.map(l => STATUS_PRIORITY[l.process_status] || 0))
+  if (highest >= 4) return 'champion'
+  if (highest >= 3) return 'pathfinder'
+  if (highest >= 2) return 'connector'
+  if (leads.length > 0 || websiteLeads.length > 0) return 'starter'
+  return null
+}
+
+// Pipeline stages in funnel order
+const PIPELINE_STAGES = ['Lead Created', 'Eval Call', 'Assessment', 'Signed', 'In Process', 'Placed']
+
 // Status color mapping
 const statusColors = {
   'Lead Created': { bg: 'bg-gray-100', text: 'text-gray-600', dot: 'bg-gray-400' },
@@ -76,6 +98,17 @@ export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNav
     .filter(c => c.status === 'paid')
     .reduce((sum, c) => sum + (c.amount || 0), 0)
 
+  // Scout level
+  const scoutLevel = getScoutLevel(leads, websiteLeads)
+  const levelConfig = scoutLevel ? SCOUT_LEVELS[scoutLevel] : null
+
+  // Pipeline breakdown (for Impact Card)
+  const pipelineCounts = PIPELINE_STAGES.reduce((acc, stage) => {
+    const count = leads.filter(l => l.process_status === stage).length
+    if (count > 0) acc.push({ stage, count })
+    return acc
+  }, [])
+
   // Get first 5 leads for preview
   const previewLeads = leads.slice(0, 5)
 
@@ -107,11 +140,16 @@ export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNav
                       <CheckCircle className="w-5 h-5 text-[var(--ausa-success)]" />
                     )}
                   </div>
-                  {scout?.is_active && (
-                    <p className="text-sm text-gray-500">
-                      Active Scout
-                    </p>
-                  )}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {scout?.is_active && (
+                      <span className="text-sm text-gray-500">Active Scout</span>
+                    )}
+                    {levelConfig && (
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${levelConfig.bg} ${levelConfig.text} ${levelConfig.border}`}>
+                        {levelConfig.emoji} {levelConfig.label}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -162,6 +200,34 @@ export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNav
                   <p className="text-xs text-gray-600">New Signups</p>
                 </div>
               </div>
+            </div>
+
+            {/* Your Impact - Mobile only */}
+            <div className="sp-impact-card lg:hidden">
+              <h2 className="font-semibold text-gray-900 mb-1">Your Impact</h2>
+              {totalLeads > 0 ? (
+                <>
+                  <p className="text-sm text-gray-600 mb-3">
+                    You've connected <span className="font-semibold text-gray-900">{totalLeads}</span> athlete{totalLeads !== 1 ? 's' : ''} with their college journey
+                  </p>
+                  {pipelineCounts.length > 0 && (
+                    <div className="space-y-2">
+                      {pipelineCounts.map(({ stage, count }) => {
+                        const style = getStatusStyle(stage)
+                        return (
+                          <div key={stage} className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${style.dot}`}></div>
+                            <span className="text-sm text-gray-700 flex-1">{stage}</span>
+                            <span className="text-sm font-semibold text-gray-900">{count}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="text-sm text-gray-500">Share your referral link to start connecting athletes with their US college journey!</p>
+              )}
             </div>
 
             {/* Link Activity - Website form submissions via scout's referral link */}
@@ -295,6 +361,34 @@ export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNav
                   <p className="text-xs text-gray-600">New Signups</p>
                 </div>
               </div>
+            </div>
+
+            {/* Your Impact - Desktop */}
+            <div className="sp-impact-card">
+              <h3 className="font-semibold text-gray-900 mb-1">Your Impact</h3>
+              {totalLeads > 0 ? (
+                <>
+                  <p className="text-sm text-gray-600 mb-3">
+                    You've connected <span className="font-semibold text-gray-900">{totalLeads}</span> athlete{totalLeads !== 1 ? 's' : ''} with their college journey
+                  </p>
+                  {pipelineCounts.length > 0 && (
+                    <div className="space-y-2">
+                      {pipelineCounts.map(({ stage, count }) => {
+                        const style = getStatusStyle(stage)
+                        return (
+                          <div key={stage} className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${style.dot}`}></div>
+                            <span className="text-sm text-gray-700 flex-1">{stage}</span>
+                            <span className="text-sm font-semibold text-gray-900">{count}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="text-sm text-gray-500">Share your referral link to start connecting athletes with their US college journey!</p>
+              )}
             </div>
 
             {/* Quick Actions - Desktop */}
