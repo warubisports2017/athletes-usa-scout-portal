@@ -289,4 +289,209 @@ A: Yes! Transfer students are a growing market. Athletes already in college (eve
 
 Q: Who do I contact if I have problems?
 A: Use the feedback button in the portal, or contact the AUSA team directly.
+
+=== SECTION 14: GERMAN MARKET CONTENT ===
+
+Key facts about Athletes USA (for German-speaking scouts and athletes):
+- Über 3.000 Athleten erfolgreich vermittelt
+- Mehr als 100 Millionen USD an Stipendien für unsere Athleten
+- Platinum Recognition Status — höchste Auszeichnung in der Branche
+- #1 Testsieger bei unabhängigen Bewertungen
+- Büros in Deutschland (Köln) und USA (Los Angeles)
+- Über 25 Jahre Erfahrung in der Sportstipendien-Vermittlung
+- Arbeiten mit NCAA Division 1, 2, 3, NAIA und NJCAA
+- Sportarten: Fußball (Hauptsport), Volleyball, Golf, Leichtathletik, und 25+ weitere
+- Persönliche Betreuung von der Bewerbung bis zum Studienabschluss
+- Netzwerk von über 400 Partneruniversitäten in den USA
+
+Warum USA? (Argumente für deutsche Athleten):
+- Sportstipendien decken bis zu 100% der Studienkosten
+- US-Abschluss ist weltweit anerkannt
+- Profisport-Karriere: Viele Bundesliga- und MLS-Spieler kamen über das US-College
+- Persönliche Entwicklung: Selbstständigkeit, Sprache, Netzwerk
+- Duale Karriere: Sport UND Studium auf höchstem Niveau
+- OPT-Programm: Nach dem Studium bis zu 3 Jahre in den USA arbeiten
+
+=== SECTION 15: SUCCESS STORIES & PROOF POINTS ===
+
+Proof points to build credibility:
+- 1,300+ successful placements across all divisions
+- Multiple MLS Draft picks came through the AUSA program
+- Marie Bathe: From SC Freiburg (Bundesliga) → Cumberland University (USA) — example of top-level German talent finding the right US fit
+- 4.89 out of 5.0 on ProvenExpert (200+ verified reviews)
+- Athletes from 50+ countries placed at US colleges
+- Average scholarship value: $80,000 - $250,000 over 4 years
+- 25+ sports covered — not just the big ones
+- 400+ partner universities across all 50 states
+- Some athletes receive full-ride scholarships covering tuition, room, board, and books
+
+Fun facts to sprinkle into conversations:
+- "Over 7 million athletes compete in US high school sports every year"
+- "There are over 1,500 colleges with soccer programs in the US"
+- "The average NCAA D1 school spends $15 million per year on athletics"
+- "US college athletes have a higher graduation rate than non-athletes"
+- "Over 180,000 international students play college sports in the US"
+- "The NCAA generates over $1 billion in annual revenue — college sports is BIG business"
+- "A US degree can increase lifetime earnings by $1 million+ compared to no degree"
+
+=== SECTION 16: SHOWCASE DETAILS ===
+
+AUSA runs two types of showcases:
+
+1. REGIONAL SHOWCASES (Identification Events):
+- Cost: 25 EUR per athlete
+- What happens: Professional scouting evaluation, highlight video recording, info session about US college sports
+- Where: Various cities across Germany and Europe
+- Duration: Half day (3-4 hours)
+- Perfect for: Athletes who are curious but not yet committed
+- Scout tip: Low barrier to entry — great first step for hesitant athletes
+
+2. INTERNATIONAL SHOWCASE (Annual Cologne Event):
+- Cost: 145 EUR (2-day) or 95 EUR (1-day)
+- What happens: Training sessions with visiting US college coaches, live evaluation, Q&A sessions, networking
+- Where: Cologne, Germany (annual event)
+- Duration: 1-2 days
+- US coaches attend in person to evaluate talent
+- Perfect for: Serious athletes ready to be seen by coaches directly
+
+UPCOMING EVENT:
+- Skillers Academy Elite Camp Tour – Munich
+- Date: April 12-13, 2026
+- Great opportunity for scouts to bring athletes from the southern Germany region
+
+How to use showcases as a scout:
+- Invite athletes from your network (share the event link with your referral code)
+- Attend if possible — meet athletes face-to-face, build relationships
+- Follow up with every attendee after the event
+- Regional showcases are the easiest "yes" — only 25 EUR and they get a video
+
+=== SECTION 17: APPLICATION PROCESS DETAILED ===
+
+The 5 phases of the Bewerbungsprozess (Application Process):
+
+PHASE 1: PREPARATION (Vorbereitung)
+- Athletic profile assessment (video, stats, position)
+- Academic record review (GPA equivalent, test scores needed)
+- Family financial discussion (budget, scholarship expectations)
+- Timeline planning (when to start, target enrollment date)
+- Document checklist: transcripts, passport, highlight video, test registrations
+
+PHASE 2: COLLEGE SEARCH (College-Suche)
+- AUSA identifies 15-30 target schools based on athletic + academic + financial fit
+- Division matching: D1 for elite, D2 for strong, NAIA for flexible, NJCAA as stepping stone
+- Location preferences considered (East Coast, West Coast, Midwest, South)
+- Major/field of study matched to school strengths
+- Coach outreach begins — personalized emails with athlete profile + video
+
+PHASE 3: REGISTRATION & DOCUMENTS (Anmeldung & Unterlagen)
+- NCAA Eligibility Center registration (for NCAA schools)
+- NAIA Eligibility Center registration (for NAIA schools)
+- SAT or ACT test preparation and registration
+- TOEFL or Duolingo English Test
+- Credential evaluation (German Abitur/Fachabitur → US GPA equivalent)
+- Visa preparation (I-20 form, F-1 student visa application)
+
+PHASE 4: DURING STUDIES (Während des Studiums)
+- On-campus living in first year (dorms, meal plan included)
+- Off-campus option from year 2+
+- Work rights: 20 hours/week on F-1 visa (campus jobs)
+- Academic support from athletic department (tutoring, study hall)
+- AUSA stays in touch — ongoing support throughout college career
+
+PHASE 5: AFTER STUDIES (Nach dem Studium)
+- Pro path: Some athletes go professional (MLS, European leagues, etc.)
+- OPT Program: Optional Practical Training — work in the US for 12-36 months after graduation
+- Ambassador network: Alumni become AUSA ambassadors and mentors
+- Career advantage: US degree + international experience = strong resume
+- Many athletes return to Europe with globally recognized qualifications
+
+=== SECTION 18: PARENT FAQ (GERMAN) ===
+
+Häufige Elternfragen und Antworten:
+
+F: Wie ist die Krankenversicherung geregelt?
+A: Jede US-Universität bietet eine Krankenversicherung für internationale Studenten an. Diese ist oft im Stipendienpaket enthalten oder kann separat abgeschlossen werden. Die Qualität ist vergleichbar mit deutschen Standards.
+
+F: Was passiert mit dem Kindergeld?
+A: Kindergeld wird in der Regel weitergezahlt, solange das Kind unter 25 ist und studiert — auch im Ausland. Die Familienkasse benötigt eine Immatrikulationsbescheinigung der US-Uni.
+
+F: Was kosten die Flüge?
+A: Hin- und Rückflug Deutschland-USA: ca. 400-800 EUR (je nach Saison). Die meisten Athleten fliegen 2-3 Mal pro Jahr nach Hause (Weihnachten, Sommer, ggf. Frühjahrspause).
+
+F: Welche zusätzlichen Kosten kommen auf uns zu?
+A: Typische Zusatzkosten (einmalig):
+- TOEFL-Test: ca. 200 EUR
+- SAT-Test: ca. 80 EUR
+- Visum (F-1): ca. 300 EUR
+- Credential Evaluation: ca. 150 EUR
+- Flug (einfach): ca. 400-600 EUR
+Diese Kosten fallen unabhängig von AUSA an — sie sind Teil des US-Bewerbungsprozesses.
+
+F: Wie ist die Unterkunft geregelt?
+A: Im ersten Jahr wohnen fast alle Athleten auf dem Campus (Studentenwohnheim). Ab dem zweiten Jahr ziehen viele in Off-Campus-Apartments mit Teamkollegen. Wohnkosten sind oft im Stipendium enthalten.
+
+F: Darf mein Kind in den USA arbeiten?
+A: Mit dem F-1 Studentenvisum darf man bis zu 20 Stunden pro Woche auf dem Campus arbeiten. Außerhalb des Campus erst nach dem ersten Jahr mit spezieller Genehmigung (CPT/OPT).
+
+F: Was ist wenn es nicht klappt oder mein Kind Heimweh hat?
+A: Das ist eine berechtigte Sorge. AUSA betreut Athleten auch während des Studiums. In seltenen Fällen eines Abbruchs kann ein Transfer an eine andere US-Uni oder eine Rückkehr nach Deutschland organisiert werden. Die meisten Athleten gewöhnen sich innerhalb der ersten 2-3 Monate ein.
+
+=== SECTION 19: COMMITMENT TRACKER STATS ===
+
+Current AUSA placement statistics (use for credibility):
+- 1,300+ total successful commitments/placements
+- 25+ different sports represented
+- 400+ partner universities in the US
+- 50+ countries of origin for placed athletes
+- $80,000 - $250,000 average total scholarship value (over 4 years)
+- 100+ Millionen USD Gesamtwert aller Stipendien
+- Division breakdown of placements:
+  * NCAA D1: ~15% (elite athletes)
+  * NCAA D2: ~30% (strong athletes with good academics)
+  * NCAA D3: ~10% (academics-focused athletes)
+  * NAIA: ~30% (flexible, good scholarships)
+  * NJCAA: ~15% (stepping stone, 2-year programs)
+
+=== SECTION 20: QUICK SCOUT FORMULAS ===
+
+Mental frameworks for scouts — use these to quickly assess situations:
+
+THE "4-QUESTION ATHLETE CHECK":
+Before referring any athlete, run through these four questions:
+1. Are they above average in their sport? (Club level minimum)
+2. Could they stand out in a stronger league/division? (Shows upside potential)
+3. Do their academics allow eligibility? (Minimum ~2.0 GPA, willing to take SAT/TOEFL)
+4. Does their personality fit US college life? (Motivated, coachable, open to new experiences)
+→ If 3 out of 4 are YES → strong referral candidate
+→ If 2 out of 4 → worth a conversation, let AUSA evaluate
+→ If 1 or fewer → probably not the right fit yet
+
+THE "PARENT CONVERSATION FRAMEWORK":
+When talking to parents, follow this sequence:
+1. INVOLVE EARLY — Parents are decision-makers, not obstacles. Include them from the start.
+2. ADDRESS REAL CONCERNS — Don't dismiss worries. Listen first, then answer honestly.
+3. BE PROFESSIONAL — You represent AUSA. Dress well, speak clearly, have materials ready.
+4. KEEP IT SIMPLE — Don't overwhelm with details. Give the big picture, let AUSA handle specifics.
+5. GUIDE, NOT SELL — You're opening a door, not closing a deal. No pressure.
+6. BE TRANSPARENT — If something is uncertain, say so. Trust builds referrals.
+7. END WITH CLARITY — Always end with a clear next step: "Shall I connect you with the AUSA team for a free evaluation call?"
+
+COMMUNICATION SCRIPTS:
+
+Instead of: "Your kid should go to America"
+Say: "Haben Sie schon mal über ein Sportstipendium in den USA nachgedacht? AUSA hat über 3.000 Athleten vermittelt und ich kann Ihnen unverbindlich mehr erzählen."
+
+Instead of: "They'll get a full scholarship"
+Say: "Stipendien variieren je nach Sportart und Niveau. Die meisten Athleten erhalten 30-80% der Kosten als Stipendium. AUSA kann eine realistische Einschätzung geben."
+
+Instead of: "Trust me, it's great"
+Say: "Ich verstehe Ihre Bedenken. Schauen Sie sich gerne die Bewertungen auf ProvenExpert an — 4.89 von 5 Sternen bei über 200 Bewertungen. Oder ich verbinde Sie mit einem Athleten, der den Prozess schon durchlaufen hat."
+
+RED FLAG INSTANT DISQUALIFIERS — don't waste time if:
+- Athlete only wants pro career, zero interest in academics → Not a fit (US college requires studying)
+- Under 16 years old → Come back in 1-2 years (too early for the process)
+- No competitive playing experience at all → Needs more development first
+- Family expects 100% free ride guaranteed → Set realistic expectations or redirect
+- Athlete has serious disciplinary/behavioral issues → This will surface in the process
+- No willingness to take standardized tests (SAT/TOEFL) → Required for eligibility
 `;

@@ -83,7 +83,7 @@ function renderMarkdown(text) {
     }
 
     for (const line of lines) {
-      const listMatch = line.match(/^[\*\-]\s+(.+)/)
+      const listMatch = line.match(/^\s*[\*\-]\s+(.+)/)
       if (listMatch) {
         flushText()
         listItems.push(listMatch[1])
