@@ -637,6 +637,8 @@ body {
   font-size: 0.9em; font-family: ui-monospace, monospace;
 }
 .sp-coach-markdown strong { font-weight: 600; }
+.sp-coach-markdown h3 { font-weight: 600; font-size: 0.95em; margin: 0.75em 0 0.25em; color: #1f2937; }
+.sp-coach-markdown h4 { font-weight: 600; font-size: 0.9em; margin: 0.5em 0 0.2em; color: #374151; }
 
 /* Streaming cursor */
 .sp-coach-cursor {

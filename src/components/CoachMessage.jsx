@@ -83,8 +83,16 @@ function renderMarkdown(text) {
     }
 
     for (const line of lines) {
-      const listMatch = line.match(/^\s*[\*\-]\s+(.+)/)
-      if (listMatch) {
+      // Headers: ###, ####
+      const headerMatch = line.match(/^(#{1,4})\s+(.+)/)
+      const listMatch = !headerMatch && line.match(/^\s*[\*\-]\s+(.+)/)
+      if (headerMatch) {
+        flushText()
+        flushList()
+        const level = headerMatch[1].length
+        const Tag = level <= 2 ? 'h3' : 'h4'
+        elements.push(<Tag key={`p${pi}-h${elements.length}`}>{renderInline(headerMatch[2], `p${pi}-h${elements.length}`)}</Tag>)
+      } else if (listMatch) {
         flushText()
         listItems.push(listMatch[1])
       } else {
