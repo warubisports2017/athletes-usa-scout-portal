@@ -39,7 +39,7 @@ export async function getScoutLeads(scoutId) {
     .select(`
       id, first_name, last_name, process_status, created_at, sport,
       profile_photo_url, ai_quick_summary, level_prediction,
-      athletic_score, scout_note, position_primary, updated_at
+      athletic_score, position_primary, updated_at
     `)
     .eq('referred_by_scout_id', scoutId)
     .is('deleted_at', null)
