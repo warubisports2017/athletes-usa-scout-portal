@@ -13,7 +13,7 @@ const SCOUT_LEVELS = {
   starter:    { label: 'Starter',    emoji: '🌱', bg: 'bg-green-100',  text: 'text-green-800',  border: 'border-green-300' },
 }
 
-const STATUS_PRIORITY = { 'Placed': 4, 'In Process': 3, 'Signed': 3, 'Assessment': 2, 'Eval Call': 2, 'Lead Created': 1 }
+const STATUS_PRIORITY = { 'Placed': 5, 'Committed': 4, 'Offer Received': 3, 'In Conversation': 3, 'In Contact': 3, 'Ready to Promote': 2, 'Building Profile': 2, 'New': 1 }
 
 function getScoutLevel(leads, websiteLeads) {
   const highest = Math.max(0, ...leads.map(l => STATUS_PRIORITY[l.process_status] || 0))
@@ -24,7 +24,7 @@ function getScoutLevel(leads, websiteLeads) {
   return null
 }
 
-const PIPELINE_STAGES = ['Lead Created', 'Eval Call', 'Assessment', 'Signed', 'In Process', 'Placed']
+const PIPELINE_STAGES = ['New', 'Building Profile', 'Ready to Promote', 'In Contact', 'In Conversation', 'Offer Received', 'Committed', 'Placed']
 
 function formatCurrency(amount) {
   return new Intl.NumberFormat('en-US', {
@@ -281,7 +281,7 @@ export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNav
                           </span>
                         </div>
                         <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${style.bg} ${style.text}`}>
-                          {lead.process_status || 'Lead Created'}
+                          {lead.process_status || 'New'}
                         </span>
                       </div>
                     )

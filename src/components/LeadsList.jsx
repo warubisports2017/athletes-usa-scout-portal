@@ -286,7 +286,7 @@ export default function LeadsList({ scoutId }) {
 
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>
-                          {lead.process_status || 'Lead Created'}
+                          {lead.process_status || 'New'}
                         </span>
                         {lead.level_prediction && (
                           <span className="text-xs text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">{lead.level_prediction}</span>

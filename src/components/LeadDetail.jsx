@@ -150,7 +150,7 @@ export default function LeadDetail({ lead, onClose }) {
             <div>
               <p className="text-sm text-gray-500 mb-2">Current Status</p>
               <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${statusConfig.bg} ${statusConfig.text}`}>
-                {lead.process_status || 'Lead Created'}
+                {lead.process_status || 'New'}
               </span>
               {/* Mini progress bar */}
               <div className="flex gap-1 mt-3">
@@ -165,7 +165,7 @@ export default function LeadDetail({ lead, onClose }) {
                 ))}
               </div>
               <div className="flex justify-between mt-1">
-                <span className="text-[10px] text-gray-400">Lead Created</span>
+                <span className="text-[10px] text-gray-400">New</span>
                 <span className="text-[10px] text-gray-400">Placed</span>
               </div>
             </div>

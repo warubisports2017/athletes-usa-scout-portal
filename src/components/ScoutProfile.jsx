@@ -72,7 +72,7 @@ export default function ScoutProfile({ onClose }) {
       const leads = await getScoutLeads(scout.id)
       setStats({
         leads: leads.length,
-        pipeline: leads.filter(l => !['Placed', 'Inactive', 'Cancelled'].includes(l.process_status)).length
+        pipeline: leads.filter(l => !['Placed', 'Archived', 'Lost'].includes(l.process_status)).length
       })
     } catch (err) {
       console.error('Failed to load stats:', err)

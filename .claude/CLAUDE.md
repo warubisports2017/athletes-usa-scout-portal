@@ -34,15 +34,22 @@ Scout portal for AUSA affiliates to track leads, share referral links, and view 
 7. **Resources** - Marketing materials, FAQs (in More menu)
 8. **Settings** - Notification preferences (in More menu)
 
-## Status Mapping
+## Status Mapping (matches QV4)
 | Status | Color | Description |
 |--------|-------|-------------|
-| Lead Created | Gray | Just signed up |
-| Eval Call | Yellow | Call scheduled/completed |
-| Assessment | Orange | AUSA evaluated |
-| Signed | Blue | Paying client |
-| In Process | Purple | Working toward placement |
-| Placed | Green | Success! |
+| New | Cyan | Just signed up |
+| Building Profile | Amber | Collecting data, videos |
+| Ready to Promote | Blue | Profile complete, ready for coaches |
+| In Contact | Emerald | Coaches contacted |
+| In Conversation | Emerald | Active coach discussions |
+| Offer Received | Violet | Has offer(s) from schools |
+| Committed | Purple | Verbally committed |
+| Placed | Green | Success! Enrolled |
+| Unresponsive | Red | Not responding |
+| Indecisive | Yellow | Can't decide |
+| On Hold | Gray | Paused |
+| Lost | Gray | No longer pursuing |
+| Archived | Gray | Closed out |
 
 ## Auth Flow
 - Scouts authenticate via Supabase Auth (email/password)

@@ -75,7 +75,7 @@ export default function CoachTab() {
         name: scout?.full_name || 'Scout',
         daysSinceJoin,
         totalLeads: leads.length,
-        signedLeads: leads.filter(l => ['Signed', 'In Process', 'Placed'].includes(l.process_status)).length,
+        signedLeads: leads.filter(l => ['In Contact', 'In Conversation', 'Offer Received', 'Committed', 'Placed'].includes(l.process_status)).length,
         placedLeads: placedCount,
         profileComplete: !!(scout?.full_name && scout?.photo_url && scout?.bio && scout?.location),
         verified: scout?.is_verified || false,
