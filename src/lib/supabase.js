@@ -38,7 +38,7 @@ export async function getScoutLeads(scoutId) {
     .from('athletes')
     .select(`
       id, first_name, last_name, process_status, created_at, sport,
-      profile_photo_url, ai_quick_summary, level_prediction,
+      profile_picture_url, ai_quick_summary, level_prediction,
       athletic_score, position_primary, updated_at
     `)
     .eq('referred_by_scout_id', scoutId)

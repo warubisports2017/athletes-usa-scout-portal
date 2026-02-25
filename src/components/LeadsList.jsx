@@ -246,8 +246,8 @@ export default function LeadsList({ scoutId }) {
                   <div className="flex items-start gap-3">
                     {/* Avatar */}
                     <div className="flex-shrink-0">
-                      {lead.profile_photo_url ? (
-                        <img src={lead.profile_photo_url} alt={fullName} className="w-11 h-11 rounded-full object-cover" />
+                      {lead.profile_picture_url ? (
+                        <img src={lead.profile_picture_url} alt={fullName} className="w-11 h-11 rounded-full object-cover" />
                       ) : (
                         <div className="w-11 h-11 rounded-full bg-gray-200 flex items-center justify-center">
                           <span className="text-gray-500 font-medium text-lg">

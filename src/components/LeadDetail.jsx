@@ -123,8 +123,8 @@ export default function LeadDetail({ lead, onClose }) {
           <div className="p-6 space-y-5">
             {/* Athlete Profile */}
             <div className="flex items-center gap-4">
-              {lead.profile_photo_url ? (
-                <img src={lead.profile_photo_url} alt={fullName} className="w-16 h-16 rounded-full object-cover" />
+              {lead.profile_picture_url ? (
+                <img src={lead.profile_picture_url} alt={fullName} className="w-16 h-16 rounded-full object-cover" />
               ) : (
                 <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
                   <span className="text-gray-500 font-semibold text-xl">
