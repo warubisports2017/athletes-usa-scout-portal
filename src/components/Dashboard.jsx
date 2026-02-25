@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../lib/auth'
-import { getScoutLeads, getScoutCommissions, getWebsiteLeads } from '../lib/supabase'
-import { Share2, BookOpen, CheckCircle, Users, Trophy, DollarSign, Globe, ArrowRight } from 'lucide-react'
+import { getScoutLeads, getScoutCommissions, getWebsiteLeads, getScoutTimeline } from '../lib/supabase'
+import { getStatusStyle } from '../lib/constants'
+import { Share2, BookOpen, CheckCircle, Users, Trophy, DollarSign, ArrowUpRight, MessageSquare, Link2, FileText, Clock } from 'lucide-react'
 import EventBanner from './EventBanner'
 
 // Scout level config
@@ -23,28 +24,7 @@ function getScoutLevel(leads, websiteLeads) {
   return null
 }
 
-// Pipeline stages in funnel order
 const PIPELINE_STAGES = ['Lead Created', 'Eval Call', 'Assessment', 'Signed', 'In Process', 'Placed']
-
-// Status color mapping
-const statusColors = {
-  'Lead Created': { bg: 'bg-gray-100', text: 'text-gray-600', dot: 'bg-gray-400' },
-  'Eval Call': { bg: 'bg-yellow-100', text: 'text-yellow-700', dot: 'bg-yellow-500' },
-  'Assessment': { bg: 'bg-orange-100', text: 'text-orange-700', dot: 'bg-orange-500' },
-  'Signed': { bg: 'bg-blue-100', text: 'text-blue-700', dot: 'bg-blue-500' },
-  'In Process': { bg: 'bg-purple-100', text: 'text-purple-700', dot: 'bg-purple-500' },
-  'Placed': { bg: 'bg-green-100', text: 'text-green-700', dot: 'bg-green-500' },
-}
-
-function getStatusStyle(status) {
-  return statusColors[status] || statusColors['Lead Created']
-}
-
-function formatDate(dateString) {
-  if (!dateString) return null
-  const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-}
 
 function formatCurrency(amount) {
   return new Intl.NumberFormat('en-US', {
@@ -55,11 +35,35 @@ function formatCurrency(amount) {
   }).format(amount || 0)
 }
 
+function timeAgo(dateString) {
+  const now = new Date()
+  const date = new Date(dateString)
+  const diffMs = now - date
+  const diffMins = Math.floor(diffMs / 60000)
+  if (diffMins < 60) return `${diffMins}m ago`
+  const diffHours = Math.floor(diffMins / 60)
+  if (diffHours < 24) return `${diffHours}h ago`
+  const diffDays = Math.floor(diffHours / 24)
+  if (diffDays < 30) return `${diffDays}d ago`
+  const date2 = new Date(dateString)
+  return date2.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+// Activity feed event icons
+const FEED_ICONS = {
+  status_change: { Icon: ArrowUpRight, color: 'text-blue-600', bg: 'bg-blue-50' },
+  note_added: { Icon: MessageSquare, color: 'text-amber-600', bg: 'bg-amber-50' },
+  lead_created: { Icon: FileText, color: 'text-gray-500', bg: 'bg-gray-100' },
+  lead_linked: { Icon: Link2, color: 'text-teal-600', bg: 'bg-teal-50' },
+  form_submission: { Icon: FileText, color: 'text-green-600', bg: 'bg-green-50' },
+}
+
 export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNavigateToResources, onNavigateToCommission }) {
   const { scout, user } = useAuth()
   const [leads, setLeads] = useState([])
   const [websiteLeads, setWebsiteLeads] = useState([])
   const [commissions, setCommissions] = useState([])
+  const [timeline, setTimeline] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -73,14 +77,16 @@ export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNav
   async function loadData() {
     try {
       setLoading(true)
-      const [leadsData, commissionsData, webLeadsData] = await Promise.all([
+      const [leadsData, commissionsData, webLeadsData, timelineData] = await Promise.all([
         getScoutLeads(scout.id),
         getScoutCommissions(scout.id),
         getWebsiteLeads(scout.id),
+        getScoutTimeline(scout.id).catch(() => []),
       ])
       setLeads(leadsData || [])
       setWebsiteLeads(webLeadsData || [])
       setCommissions(commissionsData || [])
+      setTimeline(timelineData || [])
     } catch (error) {
       console.error('Failed to load dashboard data:', error)
     } finally {
@@ -209,44 +215,40 @@ export default function Dashboard({ onNavigateToEvents, onNavigateToShare, onNav
               )}
             </div>
 
-            {/* Link Activity - Website form submissions via scout's referral link */}
-            {websiteLeads.length > 0 && (
-              <div className="bg-white rounded-xl shadow-sm overflow-hidden border-l-4 border-green-500">
-                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-green-600" />
-                    <h2 className="font-semibold text-gray-900">Link Activity</h2>
-                    <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">{websiteLeads.length}</span>
-                  </div>
+            {/* Recent Activity Feed */}
+            {timeline.length > 0 && (
+              <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-gray-400" />
+                  <h2 className="font-semibold text-gray-900">Recent Activity</h2>
                 </div>
                 <div className="divide-y divide-gray-100">
-                  {websiteLeads.slice(0, 5).map((lead) => (
-                    <div key={lead.id} className="px-4 py-3 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                        <div>
-                          <span className="font-medium text-gray-900">
-                            {lead.first_name} {lead.last_name}
-                          </span>
-                          {lead.sport && <span className="text-xs text-gray-500 ml-2">{lead.sport}</span>}
+                  {timeline.slice(0, 8).map((event) => {
+                    const config = FEED_ICONS[event.event_type] || FEED_ICONS.lead_created
+                    const Icon = config.Icon
+                    const athleteName = event.athlete
+                      ? `${event.athlete.first_name || ''} ${event.athlete.last_name || ''}`.trim()
+                      : 'Unknown'
+
+                    let label = event.event_type
+                    if (event.event_type === 'status_change') label = `${athleteName} moved to ${event.new_value}`
+                    else if (event.event_type === 'note_added') label = `Admin note on ${athleteName}`
+                    else if (event.event_type === 'lead_created') label = `${athleteName} added to pipeline`
+                    else if (event.event_type === 'lead_linked') label = `${athleteName} linked from your referral`
+
+                    return (
+                      <div key={event.id} className="px-4 py-3 flex items-center gap-3">
+                        <div className={`w-7 h-7 rounded-full ${config.bg} flex items-center justify-center flex-shrink-0`}>
+                          <Icon className={`w-3.5 h-3.5 ${config.color}`} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-gray-900 truncate">{label}</p>
+                          <p className="text-xs text-gray-400">{timeAgo(event.created_at)}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-400">
-                          {new Date(lead.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                        </span>
-                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">
-                          {lead.form_source === 'showcase' ? 'Showcase' : 'Evaluation'}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
-                {websiteLeads.length > 5 && (
-                  <div className="px-4 py-2 bg-gray-50 text-center">
-                    <span className="text-xs text-gray-500">+{websiteLeads.length - 5} more form submissions via your link</span>
-                  </div>
-                )}
               </div>
             )}
 

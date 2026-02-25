@@ -36,8 +36,13 @@ export async function getScoutProfile(email) {
 export async function getScoutLeads(scoutId) {
   const { data, error } = await supabase
     .from('athletes')
-    .select('id, first_name, last_name, process_status, created_at, sport')
+    .select(`
+      id, first_name, last_name, process_status, created_at, sport,
+      profile_photo_url, ai_quick_summary, level_prediction,
+      athletic_score, scout_note, position_primary, updated_at
+    `)
     .eq('referred_by_scout_id', scoutId)
+    .is('deleted_at', null)
     .order('created_at', { ascending: false })
   if (error) throw error
   return data
@@ -183,9 +188,35 @@ export async function getNextFeaturedEvent() {
 export async function getWebsiteLeads(scoutId) {
   const { data, error } = await supabase
     .from('website_leads')
-    .select('id, first_name, last_name, email, sport, form_source, raw_fields, created_at')
+    .select('id, first_name, last_name, email, sport, form_source, raw_fields, created_at, athlete_id')
     .eq('scout_ref', scoutId)
     .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+// Timeline: recent activity across all scout's athletes (for dashboard feed)
+export async function getScoutTimeline(scoutId) {
+  const { data, error } = await supabase
+    .from('athlete_timeline')
+    .select(`
+      id, athlete_id, event_type, old_value, new_value, metadata, created_at,
+      athlete:athletes!inner(first_name, last_name)
+    `)
+    .eq('athlete.referred_by_scout_id', scoutId)
+    .order('created_at', { ascending: false })
+    .limit(20)
+  if (error) throw error
+  return data
+}
+
+// Timeline: events for a specific athlete (for lead detail modal)
+export async function getLeadTimeline(athleteId) {
+  const { data, error } = await supabase
+    .from('athlete_timeline')
+    .select('id, event_type, old_value, new_value, metadata, created_at')
+    .eq('athlete_id', athleteId)
+    .order('created_at', { ascending: true })
   if (error) throw error
   return data
 }
