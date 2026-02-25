@@ -76,7 +76,7 @@ export default async function handler(req, res) {
     const email = fieldValues['Email'] || fieldValues['E-Mail'] || fieldValues['E-mail'] || ''
     // Phone field names vary across forms (e.g. "Telefon/WhatsApp #"), so match partially
     const phone = Object.entries(fieldValues).find(([k]) => /telefon|phone/i.test(k))?.[1] || ''
-    const sport = fieldValues['Sportart'] || fieldValues['Sport'] || ''
+    const sport = fieldValues['Sportart'] || fieldValues['Sport'] || (formSource === 'showcase' ? 'Fußball' : '')
 
     // Init Supabase with anon key (RPC is granted to anon)
     const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL

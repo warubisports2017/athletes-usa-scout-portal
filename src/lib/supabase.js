@@ -183,7 +183,7 @@ export async function getNextFeaturedEvent() {
 export async function getWebsiteLeads(scoutId) {
   const { data, error } = await supabase
     .from('website_leads')
-    .select('id, first_name, last_name, email, sport, form_source, created_at')
+    .select('id, first_name, last_name, email, sport, form_source, raw_fields, created_at')
     .eq('scout_ref', scoutId)
     .order('created_at', { ascending: false })
   if (error) throw error

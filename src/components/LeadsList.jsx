@@ -109,12 +109,21 @@ export default function LeadsList({ scoutId }) {
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-medium text-gray-900 truncate">
                         {lead.first_name} {lead.last_name}
                       </h3>
                       {lead.sport && (
                         <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{lead.sport}</span>
+                      )}
+                      {lead.raw_fields?.['Auf welchen Positionen bist du am stärksten?'] && (
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{lead.raw_fields['Auf welchen Positionen bist du am stärksten?']}</span>
+                      )}
+                      {lead.raw_fields?.['Heimatland'] && (
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{lead.raw_fields['Heimatland']}</span>
+                      )}
+                      {lead.raw_fields?.['In welcher Altersklasse spielst du aktuell?'] && (
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{lead.raw_fields['In welcher Altersklasse spielst du aktuell?']}</span>
                       )}
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
