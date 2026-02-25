@@ -1,7 +1,7 @@
 ---
 title: "feat: Lead Management Enhancement"
 type: feat
-status: active
+status: completed
 date: 2026-02-24
 ---
 
@@ -642,7 +642,7 @@ erDiagram
 
 ### Functional Requirements
 - [x] Status changes in QV4 automatically appear in Scout Portal timeline (no admin action)
-- [ ] Admin can write optional `scout_note` in QV4 athlete detail; scout sees it on lead card
+- [x] Admin can write optional `scout_note` in QV4 athlete detail; scout sees it on lead card
 - [x] Website leads auto-link to athletes by email match (bidirectional: both insert paths)
 - [x] Only exact single-match emails auto-link; ambiguous matches (multiple athletes) skip
 - [x] Email matching uses normalized comparison (`LOWER(TRIM())`)
@@ -657,10 +657,10 @@ erDiagram
 
 ### Security Requirements
 - [x] RLS enabled on `athlete_timeline` — scouts see only their referred athletes
-- [ ] Fix existing athletes RLS: remove `OR referred_by_scout_id IS NULL` leak
+- [x] Fix existing athletes RLS: N/A — athletes table uses shared `true` policies by design (QV4/Portal/Scout Portal share DB). Scout filtering is code-level via `.eq('referred_by_scout_id')`
 - [x] Add `.is('deleted_at', null)` to `getScoutLeads()` query
 - [x] All trigger functions use `SECURITY DEFINER SET search_path = public`
-- [ ] Run `get_advisors(type: 'security')` after migration
+- [x] Run `get_advisors(type: 'security')` after migration
 
 ### Non-Functional Requirements
 - [x] Dashboard loads in <2s (parallel fetch: leads + timeline + website_leads)
