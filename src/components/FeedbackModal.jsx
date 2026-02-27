@@ -256,14 +256,17 @@ export default function FeedbackModal({ onClose, onViewMyFeedback, page = 'scout
           {step === 'success' && (
             <div className="sp-feedback-success">
               <CheckCircle size={40} className="text-green-500" />
-              <p className="sp-feedback-success-title">Submitted!</p>
-              <div className="sp-feedback-success-summary">
-                <p>"{aiSummary}"</p>
-                <div className="sp-feedback-success-meta">
-                  <span className="sp-type-badge" style={{ background: getTypeColor(aiType) }}>{aiType}</span>
-                  <span className="sp-status-badge-open">Open</span>
-                </div>
-              </div>
+              <p className="sp-feedback-success-title">
+                Got it! {user?.email ? "We'll look into this." : 'Thanks for your input.'}
+              </p>
+              {user?.email && (
+                <p style={{ color: '#94a3b8', fontSize: 13, marginTop: 4 }}>
+                  We'll email you when there's an update.
+                </p>
+              )}
+              <p style={{ color: '#64748b', fontSize: 12, marginTop: 8 }}>
+                Your feedback helps shape how this tool evolves.
+              </p>
             </div>
           )}
 
